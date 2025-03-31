@@ -8,10 +8,16 @@ import prisma from "../services/prisma";
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
 
-    if (!name || !email || !password) {
+    if (!name || !email || !password ) {
       res.status(400).json({ message: "Missing required fields" });
+      return;
+    }
+
+    const validRoles = ["CLIENT", "ADMIN"];
+    if (!validRoles.includes(role)) {
+      res.status(400).json({ message: "Invalid role" });
       return;
     }
 
@@ -19,15 +25,28 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const hashedPassword = await bcrypt.hash(password, saltRounds)
 
     const newUser = await prisma.user.create({
-      data: { name, email, password: hashedPassword }
+      data: { name, email, password: hashedPassword, role }
     })
+
+    if (role == "CLIENT") {
+      await prisma.clientProfile.create({
+        data: { userId: newUser.id }
+      })
+    }
+
+    if (role == "ADMIN") {
+      await prisma.adminProfile.create({
+        data: { userId: newUser.id }
+      })
+    }
 
     res.status(201).json({
       message: "User created!",
       user: {
         id: newUser.id,
         name: newUser.name,
-        email: newUser.email
+        email: newUser.email,
+        role: newUser.role
       }
     })
 
@@ -68,7 +87,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       process.env.JWT_SECRET as string,
       { expiresIn: '1h' }
     )
-    
+
     res.status(200).json({
       message: "User logged in successfully!",
       token,
