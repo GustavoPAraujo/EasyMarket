@@ -1,21 +1,20 @@
-
-import { Request, Response } from "express"
-import bcrypt from "bcrypt"
-import jwt from "jsonwebtoken"
-import { Prisma } from "@prisma/client"
+import { Request, Response } from "express";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { Prisma } from "@prisma/client";
 
 import prisma from "../services/prisma";
 
-
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, email, password, role } = req.body;
+    let { name, email, password, role } = req.body;
 
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !role) {
       res.status(400).json({ message: "Missing required fields" });
       return;
     }
 
+    email = email.toLowerCase();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       res.status(400).json({ message: "Invalid email format" });
@@ -37,24 +36,25 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const saltRounds = 10
-    const hashedPassword = await bcrypt.hash(password, saltRounds)
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    const newUser = await prisma.user.create({
-      data: { name, email, password: hashedPassword, role }
-    })
 
-    if (role == "CLIENT") {
-      await prisma.clientProfile.create({
-        data: { userId: newUser.id }
-      })
-    }
+    const newUser = await prisma.$transaction(async (tx) => {
+      const createdUser = await tx.user.create({
+        data: { name, email, password: hashedPassword, role }
+      });
 
-    if (role == "ADMIN") {
-      await prisma.adminProfile.create({
-        data: { userId: newUser.id }
-      })
-    }
+      if (role === "CLIENT") {
+        await tx.clientProfile.create({ data: { userId: createdUser.id } });
+      }
+
+      if (role === "ADMIN") {
+        await tx.adminProfile.create({ data: { userId: createdUser.id } });
+      }
+
+      return createdUser;
+    });
 
     res.status(201).json({
       message: "User created!",
@@ -64,10 +64,10 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         email: newUser.email,
         role: newUser.role
       }
-    })
+    });
 
   } catch (err) {
-    console.error("Error registering user:", err)
+    console.error("Error registering user:", err);
 
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
       if (err.code === "P2002") {
@@ -76,9 +76,12 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       }
     }
 
-    if (!res.headersSent) res.status(500).json({ message: "Internal server error" });
+    if (!res.headersSent) {
+      res.status(500).json({ message: "Internal server error" });
+    }
   }
-}
+};
+
 
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
