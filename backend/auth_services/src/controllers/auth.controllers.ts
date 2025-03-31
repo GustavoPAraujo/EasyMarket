@@ -1,6 +1,9 @@
 
   import { Request, Response } from "express"
+  import bcrypt from "bcrypt"
+  
   import prisma from "../services/prisma";
+  
 
   export const register = async (req: Request, res: Response): Promise<void> => {
 
@@ -12,8 +15,12 @@
         return;
       }
 
+      const saltRounds = 10
+      const hashedPassword = await bcrypt.hash(password, saltRounds)
+
+
       const newUser = await prisma.user.create({
-        data: { name, email, password }
+        data: { name, email, password: hashedPassword }
       })
   
       res.status(201).json({
@@ -25,11 +32,9 @@
         }
       })
 
-      res.status(200).json({user: {name, email}, message: "User info"})
-
     } catch (err) {
       console.error("Error registering user:", err)
-      res.status(500).json({ message: "Internal server error" });
+
+      if (!res.headersSent) res.status(500).json({ message: "Internal server error" });
     }
   }
-  
