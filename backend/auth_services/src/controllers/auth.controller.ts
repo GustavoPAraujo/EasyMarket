@@ -11,8 +11,23 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, email, password, role } = req.body;
 
-    if (!name || !email || !password ) {
+    if (!name || !email || !password) {
       res.status(400).json({ message: "Missing required fields" });
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      res.status(400).json({ message: "Invalid email format" });
+      return;
+    }
+
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      res.status(400).json({
+        message:
+          "Password must be at least 8 characters long and contain at least one letter and one number"
+      });
       return;
     }
 
