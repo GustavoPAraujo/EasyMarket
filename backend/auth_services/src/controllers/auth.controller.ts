@@ -2,6 +2,7 @@
 import { Request, Response } from "express"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
+import { Prisma } from "@prisma/client"
 
 import prisma from "../services/prisma";
 
@@ -53,6 +54,13 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   } catch (err) {
     console.error("Error registering user:", err)
 
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      if (err.code === "P2002") {
+        res.status(409).json({ message: "Email already registered" });
+        return;
+      }
+    }
+
     if (!res.headersSent) res.status(500).json({ message: "Internal server error" });
   }
 }
@@ -83,7 +91,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }
 
     const token = jwt.sign(
-      { id: user.id, email: user.email, name: user.name },
+      { id: user.id, email: user.email, name: user.name, role: user.role },
       process.env.JWT_SECRET as string,
       { expiresIn: '1h' }
     )
@@ -94,7 +102,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       user: {
         id: user.id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        role: user.role
       }
     });
 
