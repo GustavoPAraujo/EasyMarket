@@ -1,7 +1,7 @@
 
 import express from "express";
 
-import * as storeController from "../controllers/store.controller"
+import * as storeController from "./store.controller"
 
 const router = express.Router()
 
