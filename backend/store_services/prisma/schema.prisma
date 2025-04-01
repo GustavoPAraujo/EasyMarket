@@ -9,42 +9,11 @@ datasource db {
 }
 
 
-model User {
-  id        Int       @id @default(autoincrement())
-  name      String
-  email     String    @unique
-  password  String
-  role      Role      @default(CLIENT)
-  createdAt DateTime  @default(now())
-
-  client    ClientProfile?
-  admin     AdminProfile?
-}
-
-enum Role {
-  CLIENT
-  ADMIN
-}
-  
-model ClientProfile {
-  id     Int   @id @default(autoincrement())
-  userId Int   @unique
-  user   User  @relation(fields: [userId], references: [id])
-
-}
-
-model AdminProfile {
-  id      Int    @id @default(autoincrement())
-  userId  Int    @unique
-  user    User   @relation(fields: [userId], references: [id])
-  store   Store? 
-}
-
 model Store {
   id          Int           @id @default(autoincrement())
   name        String
   description String?
-  adminId     Int           @unique
-  admin       AdminProfile  @relation(fields: [adminId], references: [id])
+  adminId     Int           @unique // ou não, dependendo do relacionamento desejado
   createdAt   DateTime      @default(now())
 }
+
