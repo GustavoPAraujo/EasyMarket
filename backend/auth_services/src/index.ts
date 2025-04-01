@@ -14,8 +14,8 @@ const port = process.env.PORT
 app.use(cors())
 app.use(express.json())
 
-app.use("/api", authRoutes)
-app.use("/api", userRoutes)
+app.use("/api/auth", authRoutes)
+app.use("/api/user", userRoutes)
 
 
 app.listen(port, () => {
