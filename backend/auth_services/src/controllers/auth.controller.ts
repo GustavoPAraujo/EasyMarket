@@ -2,6 +2,9 @@ import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Prisma } from "@prisma/client";
+// imported
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/react-native.js"
+
 
 import prisma from "../services/prisma";
 
@@ -40,7 +43,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
 
-    const newUser = await prisma.$transaction(async (tx) => {
+    const newUser = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const createdUser = await tx.user.create({
         data: { name, email, password: hashedPassword, role }
       });
@@ -69,7 +72,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   } catch (err) {
     console.error("Error registering user:", err);
 
-    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+    if (err instanceof PrismaClientKnownRequestError) {
       if (err.code === "P2002") {
         res.status(409).json({ message: "Email already registered" });
         return;
