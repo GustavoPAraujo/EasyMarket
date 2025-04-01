@@ -3,8 +3,8 @@ import express from "express";
 import cors from "cors"
 import dotenv from "dotenv"
 
-import authRoutes from "./routes/auth.routes"
-import userRoutes from './routes/user.routes';
+import authRoutes from "./auth/auth.routes"
+import userRoutes from './users/user.routes';
 
 dotenv.config();
 

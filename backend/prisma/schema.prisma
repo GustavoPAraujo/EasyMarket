@@ -39,3 +39,13 @@ model AdminProfile {
   storeId  Int? 
 
 }
+
+
+model Store {
+  id          Int           @id @default(autoincrement())
+  name        String
+  description String?
+  adminId     Int           @unique // ou não, dependendo do relacionamento desejado
+  createdAt   DateTime      @default(now())
+}
+
