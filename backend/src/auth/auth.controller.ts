@@ -111,11 +111,29 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    let tokenPayload: any = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role
+    };
+
+    if (user.role === "ADMIN") {
+      const adminProfile = await prisma.adminProfile.findUnique({
+        where: { userId: user.id }
+      });
+
+      if (adminProfile) {
+        tokenPayload.adminProfileId = adminProfile.id;
+      }
+    }
+
     const token = jwt.sign(
-      { id: user.id, email: user.email, name: user.name, role: user.role },
+      tokenPayload,
       process.env.JWT_SECRET as string,
       { expiresIn: '24h' }
-    )
+    );
+
 
     res.status(200).json({
       message: "User logged in successfully!",

@@ -4,7 +4,7 @@ import prisma from "../services/prisma";
 
 export const createStore = async (req: Request, res: Response) => {
 
-  const adminId = req.user?.id
+  const adminId = req.user?.adminProfileId
 
   let { name, description } = req.body
 
