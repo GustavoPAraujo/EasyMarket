@@ -4,16 +4,15 @@ import prisma from "../services/prisma";
 export const createStore = async (req: Request, res: Response): Promise<void> => {
 
   const adminId = req.user?.adminProfileId
+  if (!adminId) {
+    res.status(401).json({message: 'User not authenticated'})
+    return
+  }
 
   let { name, description } = req.body
 
   if (!name) {
     res.status(401).json({message: 'Missing required fields'})
-    return
-  }
-
-  if (!adminId) {
-    res.status(401).json({message: 'User not logged'})
     return
   }
 
@@ -72,4 +71,55 @@ export const getStore = async (req: Request, res: Response): Promise<void> => {
     console.error("Error fetching store:", err);
     res.status(500).json({ message: "Internal server error" });
   }
+}
+
+ export const updateStore = async (req: Request, res: Response): Promise<void> => {
+
+  const adminId = req.user?.adminProfileId
+  if (!adminId) {
+    res.status(401).json({message: 'User not authenticated'}) 
+    return
+  }
+
+  const adminProfile = await prisma.adminProfile.findUnique({
+    where: { id: adminId },
+    include: { store: true }
+  });
+  if (!adminProfile?.store) {
+    res.status(401).json({message:'Store not found'})
+  }
+  
+  const storeId = adminProfile?.store?.id
+
+  let { name, description } = req.body
+  const updatedStore: any = {}
+
+  if ( name != null && name != adminProfile?.store?.name ) {
+    updatedStore.name = name
+  }
+
+  if (description != null && description != adminProfile?.store?.description ) {
+    updatedStore.description = description
+  }
+
+  try {
+    const store = await prisma.store.update({
+      where: { id: storeId},
+      data: updatedStore
+    });
+
+    res.status(200).json({
+      message: "Store updated successfully",
+      store: {
+        id: storeId,
+        name: updatedStore.name,
+        description: updatedStore.description
+      }
+    });
+
+  } catch (err) {
+    console.log("update store error: ",err)
+    res.status(500).json({message: "Internal server error"})
+  }
+
  }
