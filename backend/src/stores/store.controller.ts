@@ -49,7 +49,7 @@ export const getStore = async (req: Request, res: Response): Promise<void> => {
 
   try {
     const adminProfile = await prisma.adminProfile.findUnique({
-      where: { userId: adminId },
+      where: { id: adminId },
       include: { store: true }
     });
 
