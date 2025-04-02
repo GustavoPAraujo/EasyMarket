@@ -8,5 +8,6 @@ import { authenticateToken } from "../middlewares/auth.middleware";
 const router = express.Router()
 
 router.post("/", authenticateToken, storeController.createStore)
+router.get("/", authenticateToken, storeController.getStore)
 
 export default router

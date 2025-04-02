@@ -1,8 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../services/prisma";
 
-
-export const createStore = async (req: Request, res: Response) => {
+export const createStore = async (req: Request, res: Response): Promise<void> => {
 
   const adminId = req.user?.adminProfileId
 
@@ -17,7 +16,6 @@ export const createStore = async (req: Request, res: Response) => {
     res.status(401).json({message: 'User not logged'})
     return
   }
-  console.log("store info:", name, description, adminId)
 
   try {
     const store = await prisma.store.create({
@@ -39,3 +37,39 @@ export const createStore = async (req: Request, res: Response) => {
       res.status(500).json({ message: "Internal server error" });
     }
 }
+
+export const getStore = async (req: Request, res: Response): Promise<void> => {
+
+  const adminId = req.user?.adminProfileId
+
+  if (!adminId) {
+    res.status(401).json({message: 'User not authenticated'}) 
+    return
+  }
+
+  try {
+    const adminProfile = await prisma.adminProfile.findUnique({
+      where: { userId: adminId },
+      include: { store: true }
+    });
+
+    if (!adminProfile) {
+      console.log(adminProfile)
+      res.status(404).json({message: "Admin profile not found"})
+      return
+    }
+    if (!adminProfile.store) {
+      res.status(404).json({ message: "No store associated with this admin" });
+      return;
+    }
+
+    res.status(200).json({
+      message: "Store info",
+      store: adminProfile.store
+    })
+
+  } catch (err) {
+    console.error("Error fetching store:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+ }
