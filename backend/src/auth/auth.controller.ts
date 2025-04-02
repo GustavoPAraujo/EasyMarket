@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Prisma } from "@prisma/client";
-// imported
+
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/react-native.js"
 
 
