@@ -33,8 +33,17 @@ model ClientProfile {
 }
 
 model AdminProfile {
-  id     Int   @id @default(autoincrement())
-  userId Int   @unique
-  user   User  @relation(fields: [userId], references: [id])
+  id     Int      @id @default(autoincrement())
+  userId Int      @unique
+  user   User     @relation(fields: [userId], references: [id])
+  store  Store?   @relation("AdminStore")
+}
 
+model Store {
+  id          Int           @id @default(autoincrement())
+  name        String
+  description String?
+  adminId     Int           @unique
+  admin       AdminProfile  @relation("AdminStore", fields: [adminId], references: [id])
+  createdAt   DateTime      @default(now())
 }
