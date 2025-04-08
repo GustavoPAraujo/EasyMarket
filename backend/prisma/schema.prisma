@@ -46,4 +46,20 @@ model Store {
   adminId     Int           @unique
   admin       AdminProfile  @relation("AdminStore", fields: [adminId], references: [id])
   createdAt   DateTime      @default(now())
+
+  products    Product[]
+}
+
+model Product {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  price       Decimal   @default(0)
+  quantity    Int       @default(0)
+  
+  storeId     Int
+  store       Store     @relation(fields: [storeId], references: [id])
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
