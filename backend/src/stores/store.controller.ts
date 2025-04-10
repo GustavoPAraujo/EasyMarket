@@ -75,7 +75,6 @@ export const getStore = async (req: Request, res: Response): Promise<void> => {
 
 export const updateStore = async (req: Request, res: Response): Promise<void> => {
 
-  //validating if store exists
   const adminId = req.user?.adminProfileId
   if (!adminId) {
     res.status(401).json({ message: 'User not authenticated' })
@@ -90,7 +89,6 @@ export const updateStore = async (req: Request, res: Response): Promise<void> =>
     res.status(401).json({ message: 'Store not found' })
   }
 
-  //validating req fileds
   let { name, description } = req.body
   const updatedStore: any = {}
 
@@ -102,7 +100,6 @@ export const updateStore = async (req: Request, res: Response): Promise<void> =>
     updatedStore.description = description
   }
 
-  // validate if updatedStore has new fields to update
   if (Object.keys(updatedStore).length === 0) {
     res.status(400).json({ message: "No valid fields provided to update" });
     return;
@@ -129,4 +126,45 @@ export const updateStore = async (req: Request, res: Response): Promise<void> =>
     res.status(500).json({ message: "Internal server error" })
   }
 
+}
+
+export const getStoreProducts = async (req: Request, res: Response): Promise<void> => {
+
+  const adminId = req.user?.adminProfileId
+
+  if (!adminId) {
+    res.status(401).json({ message: 'User not authenticated' })
+    return
+  }
+
+  const adminProfile = await prisma.adminProfile.findUnique({
+    where: { id: adminId },
+    include: { store: true }
+  });
+
+  if (!adminProfile) {
+    console.log(adminProfile)
+    res.status(404).json({ message: "Admin profile not found" })
+    return
+  }
+  if (!adminProfile.store) {
+    res.status(404).json({ message: "No store associated with this admin" });
+    return;
+  }
+
+  const storeId = adminProfile.store.id
+
+  try {
+    const products = await prisma.product.findMany({
+      where: {storeId}
+    })
+    res.status(200).json({
+      message: `Store ${storeId} products fetched successfully`,
+      products: products
+    })
+
+  } catch (err) {
+    console.error("Error fetching store products:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
 }
