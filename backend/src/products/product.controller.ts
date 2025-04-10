@@ -66,40 +66,54 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
 }
 
 export const updateProduct = async (req: Request, res: Response): Promise<void> => {
-
-  const adminId = req.user?.adminProfileId
+  const adminId = req.user?.adminProfileId;
   if (!adminId) {
-    res.status(401).json({ message: 'User not authenticated' })
-    return
+    res.status(401).json({ message: 'User not authenticated' });
+    return;
   }
 
-  const productId = req.params.productId
-  if (!productId) res.status(401).json({ message: "Product not found" })
+  const productId = req.params.productId;
+  if (!productId) {
+    res.status(400).json({ message: "Product ID is required" });
+    return;
+  }
+
+  const parsedProductId = parseInt(productId, 10);
+  if (isNaN(parsedProductId)) {
+    res.status(400).json({ message: "Invalid product ID format" });
+    return;
+  }
 
   const productFromDB = await prisma.product.findUnique({
-    where: { id: parseInt(productId, 10) }
+    where: { id: parsedProductId }
   });
+
   if (!productFromDB) {
     res.status(404).json({ message: "Product not found in database" });
     return;
   }
+
   const storeId = productFromDB.storeId;
   if (!storeId) {
     res.status(400).json({ message: "No store associated with this product" });
     return;
   }
 
-  let { name, description, price, quantity } = req.body
-  const updatedProduct: any = {}
-  console.log("name:", name)
+  const { name, description, price, quantity } = req.body;
+  const updatedProduct: any = {};
+
 
   if (name != null) {
+    if (typeof name !== 'string') {
+      res.status(400).json({ message: "'name' must be a string" });
+      return;
+    }
     if (name !== productFromDB.name) {
       const duplicate = await prisma.product.findFirst({
         where: {
           storeId: storeId,
           name: name,
-          NOT: { id: parseInt(productId, 10) }
+          NOT: { id: parsedProductId }
         }
       });
       if (duplicate) {
@@ -110,38 +124,56 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
     }
   }
 
-  if (description != null && description != productFromDB.description) {
-    updatedProduct.description = description;
-    console.log("description if:", updatedProduct)
-  }
-  if (price != null && Number(price) !== Number(productFromDB.price)) {
-    updatedProduct.price = Number(price);
-  }
-  if (quantity != null && Number(quantity) !== productFromDB.quantity) {
-    updatedProduct.quantity = Number(quantity);
+  if (description != null) {
+    if (typeof description !== 'string') {
+      res.status(400).json({ message: "'description' must be a string" });
+      return;
+    }
+    if (description !== productFromDB.description) {
+      updatedProduct.description = description;
+    }
   }
 
-  if (Object.keys(updatedProduct).length === 0){
+  if (price != null) {
+    const parsedPrice = Number(price);
+    if (isNaN(parsedPrice)) {
+      res.status(400).json({ message: "'price' must be a valid number" });
+      return;
+    }
+    if (parsedPrice !== Number(productFromDB.price)) {
+      updatedProduct.price = parsedPrice;
+    }
+  }
+
+  if (quantity != null) {
+    const parsedQuantity = parseInt(quantity, 10);
+    if (isNaN(parsedQuantity)) {
+      res.status(400).json({ message: "'quantity' must be an integer" });
+      return;
+    }
+    if (parsedQuantity !== productFromDB.quantity) {
+      updatedProduct.quantity = parsedQuantity;
+    }
+  }
+
+  if (Object.keys(updatedProduct).length === 0) {
     res.status(400).json({ message: "No valid changes provided" });
     return;
   }
 
   try {
-
     const updatedProductData = await prisma.product.update({
-      where: { id: parseInt(productId, 10)},
+      where: { id: parsedProductId },
       data: updatedProduct
-    })
+    });
 
     res.status(200).json({
       message: "Product updated successfully",
-      updatedInfo: updatedProductData 
-    })
+      updatedInfo: updatedProductData
+    });
 
   } catch (err) {
     console.error("Error updating product:", err);
     res.status(500).json({ message: "Internal server error" });
   }
-
-
-}
+};
