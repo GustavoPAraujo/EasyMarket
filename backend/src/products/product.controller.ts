@@ -65,6 +65,54 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
   }
 }
 
+export const getProductById = async (req: Request, res: Response): Promise<void> => {
+  const adminId = req.user?.adminProfileId
+  if (!adminId) {
+    res.status(401).json({ message: 'User not authenticated' })
+    return
+  }
+
+  const productId = req.params.productId;
+  if (!productId) {
+    res.status(400).json({ message: "Product ID is required" });
+    return;
+  }
+
+  const parsedProductId = parseInt(productId, 10);
+  if (isNaN(parsedProductId)) {
+    res.status(400).json({ message: "Invalid product ID format" });
+    return;
+  }
+
+  const productFromDB = await prisma.product.findUnique({
+    where: { id: parsedProductId }
+  });
+
+  console.log(productFromDB)
+
+  if (!productFromDB) {
+    res.status(404).json({ message: "Product not found in database" });
+    return;
+  }
+
+  const storeId = productFromDB.storeId;
+  if (!storeId) {
+    res.status(400).json({ message: "No store associated with this product" });
+    return;
+  }
+
+  try {
+    res.status(200).json({
+      message:`Product with ID ${parsedProductId} info`,
+      product: productFromDB
+    })
+  } catch (err) {
+    console.error("Error fetching product:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+
+}
+
 export const updateProduct = async (req: Request, res: Response): Promise<void> => {
   const adminId = req.user?.adminProfileId;
   if (!adminId) {
