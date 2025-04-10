@@ -88,8 +88,6 @@ export const getProductById = async (req: Request, res: Response): Promise<void>
     where: { id: parsedProductId }
   });
 
-  console.log(productFromDB)
-
   if (!productFromDB) {
     res.status(404).json({ message: "Product not found in database" });
     return;
@@ -225,3 +223,50 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const getProductsByQuery = async (req: Request, res: Response): Promise<void> => {
+
+  const adminId = req.user?.adminProfileId;
+  if (!adminId) {
+    res.status(401).json({ message: 'User not authenticated' });
+    return;
+  }
+
+  try {
+    const { name, minPrice, maxPrice } = req.query;
+
+    const filters: any = {};
+
+    if (name && typeof name === 'string') {
+      filters.name = { contains: name, mode: 'insensitive' };
+    }
+
+    if (minPrice || maxPrice) {
+      filters.price = {};
+      
+      if (minPrice && !isNaN(Number(minPrice))) {
+        filters.price.gte = Number(minPrice);
+      } else if (minPrice) {
+        res.status(400).json({ message: "'minPrice' must be a valid number" });
+        return;
+      }
+
+      if (maxPrice && !isNaN(Number(maxPrice))) {
+        filters.price.lte = Number(maxPrice);
+      } else if (maxPrice) {
+        res.status(400).json({ message: "'maxPrice' must be a valid number" });
+        return;
+      }
+    }
+
+    const products = await prisma.product.findMany({
+      where: filters,
+      orderBy: { price: 'asc' },
+    });
+
+    res.status(200).json(products);
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
