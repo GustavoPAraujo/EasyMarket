@@ -91,6 +91,7 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
 
   let { name, description, price, quantity } = req.body
   const updatedProduct: any = {}
+  console.log("name:", name)
 
   if (name != null) {
     if (name !== productFromDB.name) {
@@ -109,8 +110,9 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
     }
   }
 
-  if (description != null && description !== productFromDB.description) {
+  if (description != null && description != productFromDB.description) {
     updatedProduct.description = description;
+    console.log("description if:", updatedProduct)
   }
   if (price != null && Number(price) !== Number(productFromDB.price)) {
     updatedProduct.price = Number(price);
@@ -119,7 +121,7 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
     updatedProduct.quantity = Number(quantity);
   }
 
-  if (Object.keys(updateProduct).length === 0){
+  if (Object.keys(updatedProduct).length === 0){
     res.status(400).json({ message: "No valid changes provided" });
     return;
   }
