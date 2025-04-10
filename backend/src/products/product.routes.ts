@@ -5,6 +5,7 @@ import * as productController from "./product.controller"
 
 const router = express.Router()
 
-router.post("/", authenticateToken, productController.createProduct  )
+router.post("/", authenticateToken, productController.createProduct)
+router.patch("/:productId", authenticateToken, productController.createProduct)
 
 export default router
