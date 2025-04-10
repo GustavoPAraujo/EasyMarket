@@ -270,3 +270,38 @@ export const getProductsByQuery = async (req: Request, res: Response): Promise<v
     res.status(500).json({ message: "Internal server error" });
   }
 }
+
+export const deleteProduct = async (req: Request, res: Response): Promise<void> => {
+
+  const adminId = req.user?.adminProfileId;
+  if (!adminId) {
+    res.status(401).json({ message: 'User not authenticated' });
+    return;
+  }
+  const productId = req.params.productId;
+  if (!productId) {
+    res.status(400).json({ message: "Product ID is required" });
+    return;
+  }
+  const parsedProductId = parseInt(productId, 10);
+  if (isNaN(parsedProductId)) {
+    res.status(400).json({ message: "Invalid product ID format" });
+    return;
+  }
+
+  try {
+    const deletedproduct = await prisma.product.delete({
+      where: { id: parsedProductId}
+    })
+
+    res.status(200).json({
+      message: "Product deleted successfully",
+      deleteProduct: deletedproduct
+    })
+
+  } catch (err) {
+    console.error("Error deleting product:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+
+}
