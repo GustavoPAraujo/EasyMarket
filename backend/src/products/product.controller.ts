@@ -290,10 +290,15 @@ export const deleteProduct = async (req: Request, res: Response): Promise<void> 
   }
 
   const productFromDB = await prisma.product.findUnique({
-    where: { id: parsedProductId }
+    where: { id: parsedProductId },
+    include: { store: true }
   });
   if (!productFromDB) {
     res.status(404).json({ message: "Product not found in database" });
+    return;
+  }
+  if (productFromDB.store.adminId !== adminId) {
+    res.status(403).json({ message: "Not authorized to delete this product" });
     return;
   }
 
