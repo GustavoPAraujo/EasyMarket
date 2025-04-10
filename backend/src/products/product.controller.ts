@@ -289,6 +289,14 @@ export const deleteProduct = async (req: Request, res: Response): Promise<void> 
     return;
   }
 
+  const productFromDB = await prisma.product.findUnique({
+    where: { id: parsedProductId }
+  });
+  if (!productFromDB) {
+    res.status(404).json({ message: "Product not found in database" });
+    return;
+  }
+
   try {
     const deletedproduct = await prisma.product.delete({
       where: { id: parsedProductId}
