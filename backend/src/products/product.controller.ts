@@ -66,11 +66,6 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
 }
 
 export const getProductById = async (req: Request, res: Response): Promise<void> => {
-  const adminId = req.user?.adminProfileId
-  if (!adminId) {
-    res.status(401).json({ message: 'User not authenticated' })
-    return
-  }
 
   const productId = req.params.productId;
   if (!productId) {
@@ -112,11 +107,6 @@ export const getProductById = async (req: Request, res: Response): Promise<void>
 }
 
 export const updateProduct = async (req: Request, res: Response): Promise<void> => {
-  const adminId = req.user?.adminProfileId;
-  if (!adminId) {
-    res.status(401).json({ message: 'User not authenticated' });
-    return;
-  }
 
   const productId = req.params.productId;
   if (!productId) {
