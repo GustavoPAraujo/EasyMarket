@@ -37,41 +37,71 @@ export const createStore = async (req: Request, res: Response): Promise<void> =>
   }
 }
 
-export const getStore = async (req: Request, res: Response): Promise<void> => {
-
-  const adminId = req.user?.adminProfileId
-
-  if (!adminId) {
-    res.status(401).json({ message: 'User not authenticated' })
-    return
-  }
-
+export const getAllStores = async (req: Request, res: Response): Promise<void> => {
   try {
-    const adminProfile = await prisma.adminProfile.findUnique({
-      where: { id: adminId },
-      include: { store: true }
-    });
-
-    if (!adminProfile) {
-      console.log(adminProfile)
-      res.status(404).json({ message: "Admin profile not found" })
-      return
-    }
-    if (!adminProfile.store) {
-      res.status(404).json({ message: "No store associated with this admin" });
-      return;
-    }
-
+    const stores = await prisma.store.findMany();
     res.status(200).json({
-      message: "Store info",
-      store: adminProfile.store
-    })
-
+      message: "All stores retrieved successfully",
+      stores,
+    });
   } catch (err) {
-    console.error("Error fetching store:", err);
+    console.error("Error fetching all stores:", err);
     res.status(500).json({ message: "Internal server error" });
   }
-}
+};
+
+export const searchStoresByName = async (req: Request, res: Response): Promise<void> => {
+  const { name } = req.query;
+  if (!name || typeof name !== 'string') {
+    res.status(400).json({ message: "Name query parameter is required" });
+    return;
+  }
+  
+  try {
+    const stores = await prisma.store.findMany({
+      where: {
+        name: {
+          contains: name,
+          mode: 'insensitive',
+        },
+      },
+    });
+    res.status(200).json({
+      message: "Stores retrieved successfully",
+      stores,
+    });
+  } catch (err) {
+    console.error("Error searching stores by name:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const getStoreById = async (req: Request, res: Response): Promise<void> => {
+  const storeId = parseInt(req.params.storeId, 10);
+  if (isNaN(storeId)) {
+    res.status(400).json({ message: "Invalid store ID" });
+    return;
+  }
+  
+  try {
+    const store = await prisma.store.findUnique({
+      where: { id: storeId },
+      include: { products: true }
+    });
+    if (!store) {
+      res.status(404).json({ message: "Store not found" });
+      return;
+    }
+    res.status(200).json({
+      message: "Store retrieved successfully",
+      store,
+    });
+  } catch (err) {
+    console.error("Error fetching store by ID:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 
 export const updateStore = async (req: Request, res: Response): Promise<void> => {
 
