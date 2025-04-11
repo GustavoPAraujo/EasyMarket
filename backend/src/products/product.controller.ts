@@ -96,7 +96,7 @@ export const getProductById = async (req: Request, res: Response): Promise<void>
 
   try {
     res.status(200).json({
-      message:`Product with ID ${parsedProductId} info`,
+      message: `Product with ID ${parsedProductId} info`,
       product: productFromDB
     })
   } catch (err) {
@@ -106,7 +106,53 @@ export const getProductById = async (req: Request, res: Response): Promise<void>
 
 }
 
+export const getProductsByQuery = async (req: Request, res: Response): Promise<void> => {
+
+  try {
+    const { name, minPrice, maxPrice } = req.query;
+
+    const filters: any = {};
+
+    if (name && typeof name === 'string') {
+      filters.name = { contains: name, mode: 'insensitive' };
+    }
+
+    if (minPrice || maxPrice) {
+      filters.price = {};
+
+      if (minPrice && !isNaN(Number(minPrice))) {
+        filters.price.gte = Number(minPrice);
+      } else if (minPrice) {
+        res.status(400).json({ message: "'minPrice' must be a valid number" });
+        return;
+      }
+
+      if (maxPrice && !isNaN(Number(maxPrice))) {
+        filters.price.lte = Number(maxPrice);
+      } else if (maxPrice) {
+        res.status(400).json({ message: "'maxPrice' must be a valid number" });
+        return;
+      }
+    }
+
+    const products = await prisma.product.findMany({
+      where: filters,
+      orderBy: { price: 'asc' },
+    });
+
+    res.status(200).json(products);
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
 export const updateProduct = async (req: Request, res: Response): Promise<void> => {
+  const adminId = req.user?.adminProfileId;
+  if (!adminId) {
+    res.status(401).json({ message: 'User not authenticated' });
+    return;
+  }
 
   const productId = req.params.productId;
   if (!productId) {
@@ -214,53 +260,6 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
   }
 };
 
-export const getProductsByQuery = async (req: Request, res: Response): Promise<void> => {
-
-  const adminId = req.user?.adminProfileId;
-  if (!adminId) {
-    res.status(401).json({ message: 'User not authenticated' });
-    return;
-  }
-
-  try {
-    const { name, minPrice, maxPrice } = req.query;
-
-    const filters: any = {};
-
-    if (name && typeof name === 'string') {
-      filters.name = { contains: name, mode: 'insensitive' };
-    }
-
-    if (minPrice || maxPrice) {
-      filters.price = {};
-      
-      if (minPrice && !isNaN(Number(minPrice))) {
-        filters.price.gte = Number(minPrice);
-      } else if (minPrice) {
-        res.status(400).json({ message: "'minPrice' must be a valid number" });
-        return;
-      }
-
-      if (maxPrice && !isNaN(Number(maxPrice))) {
-        filters.price.lte = Number(maxPrice);
-      } else if (maxPrice) {
-        res.status(400).json({ message: "'maxPrice' must be a valid number" });
-        return;
-      }
-    }
-
-    const products = await prisma.product.findMany({
-      where: filters,
-      orderBy: { price: 'asc' },
-    });
-
-    res.status(200).json(products);
-  } catch (error) {
-    console.error("Error fetching products:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-}
-
 export const deleteProduct = async (req: Request, res: Response): Promise<void> => {
 
   const adminId = req.user?.adminProfileId;
@@ -294,7 +293,7 @@ export const deleteProduct = async (req: Request, res: Response): Promise<void> 
 
   try {
     const deletedproduct = await prisma.product.delete({
-      where: { id: parsedProductId}
+      where: { id: parsedProductId }
     })
 
     res.status(200).json({
