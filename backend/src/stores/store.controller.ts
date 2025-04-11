@@ -66,6 +66,10 @@ export const searchStoresByName = async (req: Request, res: Response): Promise<v
         },
       },
     });
+    if(!stores.length){
+      res.status(400).json({message: `No stores found for the search: '${name}'`})
+      return;
+    }
     res.status(200).json({
       message: "Stores retrieved successfully",
       stores,
@@ -101,7 +105,6 @@ export const getStoreById = async (req: Request, res: Response): Promise<void> =
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
 
 export const updateStore = async (req: Request, res: Response): Promise<void> => {
 

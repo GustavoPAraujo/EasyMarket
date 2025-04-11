@@ -9,8 +9,8 @@ const router = express.Router()
 
 router.post("/", authenticateToken, storeController.createStore)
 router.get("/", storeController.getAllStores)
-router.get("/search", storeController.getAllStores)
-router.get("/:storeId", storeController.getAllStores)
+router.get("/search", storeController.searchStoresByName)
+router.get("/:storeId", storeController.getStoreById)
 router.patch("/", authenticateToken, storeController.updateStore)
 router.get("/:storeId/products", authenticateToken, storeController.getStoreProducts)
 
