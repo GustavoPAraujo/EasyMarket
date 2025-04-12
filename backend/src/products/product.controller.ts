@@ -75,7 +75,7 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
         category: product.category
       }
     });
-      } catch (err) {
+  } catch (err) {
     console.error("Error creating product:", err);
     res.status(500).json({ message: "Internal server error" });
   }
@@ -197,7 +197,7 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
     return;
   }
 
-  const { name, description, price, quantity } = req.body;
+  const { name, description, price, quantity, categoryId } = req.body;
   const updatedProduct: any = {};
 
 
@@ -251,6 +251,26 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
     }
     if (parsedQuantity !== productFromDB.quantity) {
       updatedProduct.quantity = parsedQuantity;
+    }
+  }
+// arrumar validacao aqui
+  if (categoryId != null) {
+    const validId = parseInt(categoryId, 10);
+    if (isNaN(validId)) {
+      res.status(400).json({ message: "'categoryId' must be an integer" });
+      return;
+    }
+    const categoryExists = await prisma.category.findUnique({
+      where: { id: Number(validId) }
+    });
+    if (!categoryExists || validId === 0) {
+      res.status(400).json({ message: "Invalid category ID" });
+      return;
+    }
+    if (validId === 0) {
+      updatedProduct.categoryId = null
+    } else {
+      updatedProduct.categoryId = validId;
     }
   }
 
