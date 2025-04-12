@@ -254,25 +254,27 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
     }
   }
 // arrumar validacao aqui
-  if (categoryId != null) {
-    const validId = parseInt(categoryId, 10);
-    if (isNaN(validId)) {
-      res.status(400).json({ message: "'categoryId' must be an integer" });
-      return;
-    }
+if (categoryId != null) {
+  const validId = parseInt(categoryId, 10);
+  if (isNaN(validId)) {
+    res.status(400).json({ message: "'categoryId' must be an integer" });
+    return;
+  }
+
+  if (validId === 0) {
+    updatedProduct.categoryId = null;
+  } else {
     const categoryExists = await prisma.category.findUnique({
-      where: { id: Number(validId) }
+      where: { id: validId }
     });
-    if (!categoryExists || validId === 0) {
+    if (!categoryExists) {
       res.status(400).json({ message: "Invalid category ID" });
       return;
     }
-    if (validId === 0) {
-      updatedProduct.categoryId = null
-    } else {
-      updatedProduct.categoryId = validId;
-    }
+    updatedProduct.categoryId = validId;
   }
+}
+
 
   if (Object.keys(updatedProduct).length === 0) {
     res.status(400).json({ message: "No valid changes provided" });
