@@ -6,6 +6,10 @@ import prisma from "../services/prisma";
 export const getMe = (req: Request, res: Response): void => {
 
   const user = req.user;
+  if (!user) {
+    res.status(401).json({ message: 'User not authenticated' })
+    return
+  }
 
   res.status(200).json({
     message: "Authenticated user",
@@ -16,6 +20,10 @@ export const getMe = (req: Request, res: Response): void => {
 export const updateUserData = async (req: Request, res: Response): Promise<void> => {
 
   const userId = req.user?.id
+  if(!userId){
+    res.status(401).json({ message: 'User not authenticated' })
+    return
+  }
 
   let { name, email } = req.body
 

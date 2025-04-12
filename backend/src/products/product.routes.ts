@@ -6,8 +6,8 @@ import * as productController from "./product.controller"
 const router = express.Router()
 
 router.post("/", authenticateToken, productController.createProduct)
-router.get("/:productId", authenticateToken, productController.getProductById)
-router.get("/", authenticateToken, productController.getProductsByQuery)
+router.get("/:productId", productController.getProductById)
+router.get("/", productController.getProductsByQuery)//implementar selecao por categorias
 router.patch("/:productId", authenticateToken, productController.updateProduct)
 router.delete("/:productId", authenticateToken, productController.deleteProduct)
 
