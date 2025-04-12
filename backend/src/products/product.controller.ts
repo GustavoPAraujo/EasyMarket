@@ -9,7 +9,7 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
     return
   }
 
-  let { name, description, price, quantity } = req.body
+  let { name, description, price, quantity, categoryId } = req.body
 
   if (!name || !description || !price || !quantity) {
     res.status(401).json({ message: 'Missing required fields' })
@@ -38,13 +38,29 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
 
     const storeId = adminProfile.store.id;
 
+    let categoryName = null
+
+    if (categoryId) {
+      const categoryExists = await prisma.category.findUnique({
+        where: { id: Number(categoryId) }
+      });
+      if (!categoryExists) {
+        res.status(400).json({ message: "Invalid category ID" });
+        return;
+      }
+      categoryId = Number(categoryId);
+      categoryName = categoryExists.name
+      console.log(categoryExists.name)
+    }
+
     const product = await prisma.product.create({
       data: {
         name,
         description,
         quantity: Number(quantity),
         price: Number(price),
-        storeId
+        storeId,
+        ...(categoryId ? { categoryId } : {})
       }
     })
 
@@ -56,8 +72,10 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
         description: product.description,
         price: product.price,
         quantity: product.quantity,
-        storeId: product.storeId
-      }
+        storeId: product.storeId,
+        categoryId: product.categoryId
+      },
+      category_Name: categoryName
     })
   } catch (err) {
     console.error("Error creating product:", err);
