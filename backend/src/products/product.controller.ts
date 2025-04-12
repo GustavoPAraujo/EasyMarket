@@ -38,8 +38,6 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
 
     const storeId = adminProfile.store.id;
 
-    let categoryName = null
-
     if (categoryId) {
       const categoryExists = await prisma.category.findUnique({
         where: { id: Number(categoryId) }
@@ -49,8 +47,6 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
         return;
       }
       categoryId = Number(categoryId);
-      categoryName = categoryExists.name
-      console.log(categoryExists.name)
     }
 
     const product = await prisma.product.create({
@@ -61,6 +57,9 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
         price: Number(price),
         storeId,
         ...(categoryId ? { categoryId } : {})
+      },
+      include: {
+        category: true
       }
     })
 
@@ -73,11 +72,10 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
         price: product.price,
         quantity: product.quantity,
         storeId: product.storeId,
-        categoryId: product.categoryId
-      },
-      category_Name: categoryName
-    })
-  } catch (err) {
+        category: product.category
+      }
+    });
+      } catch (err) {
     console.error("Error creating product:", err);
     res.status(500).json({ message: "Internal server error" });
   }
