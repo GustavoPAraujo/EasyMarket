@@ -125,7 +125,7 @@ export const getProductById = async (req: Request, res: Response): Promise<void>
 export const getProductsByQuery = async (req: Request, res: Response): Promise<void> => {
 
   try {
-    const { name, minPrice, maxPrice } = req.query;
+    const { name, minPrice, maxPrice, categoryId } = req.query;
 
     const filters: any = {};
 
@@ -150,6 +150,23 @@ export const getProductsByQuery = async (req: Request, res: Response): Promise<v
         return;
       }
     }
+
+    if (categoryId) {
+      const validId = parseInt(categoryId as string, 10);
+      if (isNaN(validId)) {
+        res.status(400).json({ message: "'categoryId' must be an integer" });
+        return;
+      }
+      const categoryExists = await prisma.category.findUnique({
+        where: { id: validId }
+      });
+      if (!categoryExists) {
+        res.status(400).json({ message: "Invalid category ID" });
+        return;
+      }
+      filters.categoryId = validId;
+    }
+    
 
     const products = await prisma.product.findMany({
       where: filters,
@@ -199,7 +216,6 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
 
   const { name, description, price, quantity, categoryId } = req.body;
   const updatedProduct: any = {};
-
 
   if (name != null) {
     if (typeof name !== 'string') {
@@ -253,8 +269,8 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
       updatedProduct.quantity = parsedQuantity;
     }
   }
-// arrumar validacao aqui
-if (categoryId != null) {
+
+  if (categoryId != null) {
   const validId = parseInt(categoryId, 10);
   if (isNaN(validId)) {
     res.status(400).json({ message: "'categoryId' must be an integer" });
@@ -274,7 +290,6 @@ if (categoryId != null) {
     updatedProduct.categoryId = validId;
   }
 }
-
 
   if (Object.keys(updatedProduct).length === 0) {
     res.status(400).json({ message: "No valid changes provided" });
