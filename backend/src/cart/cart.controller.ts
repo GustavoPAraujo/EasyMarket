@@ -3,9 +3,9 @@ import prisma from "../services/prisma";
 
 export const addItemToCart  = async (req: Request, res: Response): Promise<void> => {
 
-  const userId = req.user?.id;  
-  if (!userId) {
-    res.status(401).json({ message: "User not authenticated" });
+  const clientId = req.user?.clientProfileId;  
+  if (!clientId) {
+    res.status(401).json({ message: "Client not authenticated" });
     return;
   }
 
@@ -32,12 +32,12 @@ export const addItemToCart  = async (req: Request, res: Response): Promise<void>
     }
     
     let cart = await prisma.cart.findFirst({
-      where: { userId, status: 'ACTIVE' }
+      where: { clientId, status: 'ACTIVE' }
     });
     if (!cart) {
       cart = await prisma.cart.create({
         data: { 
-          userId, 
+          clientId, 
           status: 'ACTIVE'
         }
       });
