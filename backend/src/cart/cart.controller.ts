@@ -196,7 +196,57 @@ export const updateCartItem = async (req: Request, res: Response): Promise<void>
     })
 
   } catch (err) {
-    console.error("Error uupdating cart item:", err);
+    console.error("Error updating cart item:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 }
+
+export const deleteCartItem = async (req: Request, res: Response): Promise<void> => {
+
+  const clientId = req.user?.clientProfileId;
+  if (!clientId) {
+    res.status(401).json({ message: "Client not authenticated" });
+    return;
+  }
+
+  const itemIdParam = req.params.itemId;
+  const itemId = parseInt(itemIdParam, 10);
+  if (isNaN(itemId)) {
+    res.status(400).json({ message: "Invalid item ID" });
+    return;
+  }
+
+  try {
+
+    const cart = await prisma.cart.findFirst({
+      where: {
+        clientId: clientId,
+        status: 'ACTIVE'
+      },
+      include: {
+        items: true
+      }
+    });
+    if (!cart) {
+      res.status(404).json({ message: "No active cart found for this client" });
+      return;
+    }
+
+    const cartItem = cart.items.find((item) => item.id === itemId);
+    if (!cartItem) {
+      res.status(404).json({ message: "Cart item not found in the client's cart" });
+      return;
+    }
+
+    const deletedItem = await prisma.cartItem.delete({
+      where: { id: itemId }
+    });
+    
+    res.status(200).json({ message: "Cart item deleted successfully", deletedItem });
+    
+  } catch(err) {
+    console.error("Error deleting cart item:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
