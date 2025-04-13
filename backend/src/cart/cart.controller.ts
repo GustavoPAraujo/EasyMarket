@@ -119,6 +119,54 @@ export const getCart = async (req: Request, res: Response): Promise<void> => {
 
 }
 
+export const getCartSummary = async (req: Request, res: Response): Promise<void> => {
+
+  const clientId = req.user?.clientProfileId;
+  if (!clientId) {
+    res.status(401).json({ message: "Client not authenticated" });
+    return;
+  }
+
+  try {
+
+    const cart = await prisma.cart.findFirst({
+      where: {
+        clientId: clientId,
+        status: 'ACTIVE'
+      },
+      include: {
+        items: {
+          include: { product: true }
+        }
+      }
+    })
+    if (!cart) {
+      res.status(404).json({
+        message: "This user has no active cart"
+      });
+      return;
+    }
+
+    let totalPrice = 0
+    let totalQuantity = 0
+    cart.items.forEach((item) => {
+      const price = Number(item.priceSnapshot || item.product.price);
+      totalQuantity += item.quantity;
+      totalPrice += price * item.quantity;
+    })
+
+    res.status(200).json({
+      message:"Cart items Summary",
+      total_quantity: totalQuantity,
+      total_price: totalPrice
+    })
+
+  } catch(err) {
+    console.error("Error fetching cart:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
 export const updateCartItem = async (req: Request, res: Response): Promise<void> => {
 
   const clientId = req.user?.clientProfileId;
