@@ -128,6 +128,16 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       }
     }
 
+    if (user.role === "CLIENT") {
+      const clientProfile = await prisma.clientProfile.findUnique({
+        where: { userId: user.id }
+      });
+
+      if (clientProfile) {
+        tokenPayload.clientProfileId = clientProfile.id;
+      }
+    }
+
     const token = jwt.sign(
       tokenPayload,
       process.env.JWT_SECRET as string,
