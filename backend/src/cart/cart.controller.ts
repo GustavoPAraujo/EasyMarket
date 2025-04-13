@@ -134,8 +134,6 @@ export const updateCartItem = async (req: Request, res: Response): Promise<void>
     return;
   }
 
-
-
   try {
 
     const cart = await prisma.cart.findFirst({
@@ -193,13 +191,12 @@ export const updateCartItem = async (req: Request, res: Response): Promise<void>
     }
     
     res.status(200).json({
-      message:`Item's ${updatedItem.nameSnapshot} quantity updated successfuly `
+      message:`Item ${updatedItem.nameSnapshot} quantity updated successfuly `,
+      updatedItem
     })
-
 
   } catch (err) {
     console.error("Error uupdating cart item:", err);
     res.status(500).json({ message: "Internal server error" });
   }
-
 }
