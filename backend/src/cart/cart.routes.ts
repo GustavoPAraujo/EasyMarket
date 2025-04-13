@@ -9,6 +9,7 @@ router.post("/items", authenticateToken, cartController.addItemToCart )
 router.get("/", authenticateToken, cartController.getCart )
 router.patch("/:itemId", authenticateToken, cartController.updateCartItem )
 router.delete("/:itemId", authenticateToken, cartController.deleteCartItem )
+router.delete("/clear", authenticateToken, cartController.deleteAllItems )
 
 
 export default router

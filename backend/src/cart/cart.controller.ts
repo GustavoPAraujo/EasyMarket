@@ -170,7 +170,7 @@ export const updateCartItem = async (req: Request, res: Response): Promise<void>
           id: itemId
         }
       })
-      if (!deleteItem){
+      if (!deleteItem) {
         res.status(400).json({
           message: "Item could not be deleted"
         })
@@ -185,13 +185,13 @@ export const updateCartItem = async (req: Request, res: Response): Promise<void>
     });
     if (!updatedItem) {
       res.status(400).json({
-        message:"Items quantity could not be updated"
+        message: "Items quantity could not be updated"
       })
       return
     }
-    
+
     res.status(200).json({
-      message:`Item ${updatedItem.nameSnapshot} quantity updated successfuly `,
+      message: `Item ${updatedItem.nameSnapshot} quantity updated successfuly `,
       updatedItem
     })
 
@@ -241,12 +241,50 @@ export const deleteCartItem = async (req: Request, res: Response): Promise<void>
     const deletedItem = await prisma.cartItem.delete({
       where: { id: itemId }
     });
-    
+
     res.status(200).json({ message: "Cart item deleted successfully", deletedItem });
-    
-  } catch(err) {
+
+  } catch (err) {
     console.error("Error deleting cart item:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
+export const deleteAllItems = async (req: Request, res: Response): Promise<void> => {
+
+  const clientId = req.user?.clientProfileId;
+  if (!clientId) {
+    res.status(401).json({ message: "Client not authenticated" });
+    return;
+  }
+
+  try {
+    const cart = await prisma.cart.findFirst({
+      where: {
+        clientId: clientId,
+        status: 'ACTIVE'
+      },
+      include: {
+        items: true
+      }
+    });
+    if (!cart) {
+      res.status(404).json({ message: "No active cart found for this client" });
+      return;
+    }
+
+    const deleted = await prisma.cartItem.deleteMany({
+      where: { cartId: cart.id }
+    })
+
+    res.status(200).json({
+      message: "All items deleted from cart successfully",
+      deletedCount: deleted.count
+    });
+    
+  } catch (err) {
+    console.error("Error deleting cart:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+
+}
