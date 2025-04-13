@@ -78,3 +78,43 @@ export const addItemToCart  = async (req: Request, res: Response): Promise<void>
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const getCart = async (req: Request, res: Response) => {
+
+  const clientId = req.user?.clientProfileId;  
+  if (!clientId) {
+    res.status(401).json({ message: "Client not authenticated" });
+    return;
+  }
+
+  try {
+    const cart = await prisma.cart.findFirst({
+      where: {
+        clientId: clientId,
+        status: 'ACTIVE'
+      },
+      include: { 
+        items: { 
+          include: { product: true } 
+        } 
+      }
+    });
+
+    if (!cart) {
+      res.status(404).json({
+        message: "This user has no active cart"
+      });
+      return;
+    }
+
+    res.status(200).json({
+      message: "Cart Items",
+      cart
+    });
+
+  } catch(err){
+    console.error("Error fetching cart:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+  
+}
