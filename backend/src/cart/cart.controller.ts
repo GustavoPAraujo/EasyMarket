@@ -277,6 +277,13 @@ export const deleteAllItems = async (req: Request, res: Response): Promise<void>
       where: { cartId: cart.id }
     })
 
+    if (deleted.count === 0) {
+      res.status(200).json({
+        message: "Cart is already empty",
+        deletedCount: deleted.count
+      });
+    }
+
     res.status(200).json({
       message: "All items deleted from cart successfully",
       deletedCount: deleted.count
