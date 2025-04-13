@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import prisma from "../services/prisma";
 
-export const addItemToCart  = async (req: Request, res: Response): Promise<void> => {
+export const addItemToCart = async (req: Request, res: Response): Promise<void> => {
 
-  const clientId = req.user?.clientProfileId;  
+  const clientId = req.user?.clientProfileId;
   if (!clientId) {
     res.status(401).json({ message: "Client not authenticated" });
     return;
@@ -30,30 +30,30 @@ export const addItemToCart  = async (req: Request, res: Response): Promise<void>
       res.status(404).json({ message: "Product not found" });
       return;
     }
-    
+
     let cart = await prisma.cart.findFirst({
       where: { clientId, status: 'ACTIVE' }
     });
     if (!cart) {
       cart = await prisma.cart.create({
-        data: { 
-          clientId, 
+        data: {
+          clientId,
           status: 'ACTIVE'
         }
       });
     }
-    
+
     let cartItem = await prisma.cartItem.findFirst({
-      where: { 
+      where: {
         cartId: cart.id,
         productId: parsedProductId
       }
     });
-    
+
     if (cartItem) {
       cartItem = await prisma.cartItem.update({
         where: { id: cartItem.id },
-        data: { 
+        data: {
           quantity: cartItem.quantity + parsedQuantity
         }
       });
@@ -68,7 +68,7 @@ export const addItemToCart  = async (req: Request, res: Response): Promise<void>
         }
       });
     }
-    
+
     res.status(200).json({
       message: "Item added to cart successfully",
       cartItem
@@ -79,9 +79,9 @@ export const addItemToCart  = async (req: Request, res: Response): Promise<void>
   }
 };
 
-export const getCart = async (req: Request, res: Response) => {
+export const getCart = async (req: Request, res: Response): Promise<void> => {
 
-  const clientId = req.user?.clientProfileId;  
+  const clientId = req.user?.clientProfileId;
   if (!clientId) {
     res.status(401).json({ message: "Client not authenticated" });
     return;
@@ -93,10 +93,10 @@ export const getCart = async (req: Request, res: Response) => {
         clientId: clientId,
         status: 'ACTIVE'
       },
-      include: { 
-        items: { 
-          include: { product: true } 
-        } 
+      include: {
+        items: {
+          include: { product: true }
+        }
       }
     });
 
@@ -112,9 +112,94 @@ export const getCart = async (req: Request, res: Response) => {
       cart
     });
 
-  } catch(err){
+  } catch (err) {
     console.error("Error fetching cart:", err);
     res.status(500).json({ message: "Internal server error" });
   }
-  
+
+}
+
+export const updateCartItem = async (req: Request, res: Response): Promise<void> => {
+
+  const clientId = req.user?.clientProfileId;
+  if (!clientId) {
+    res.status(401).json({ message: "Client not authenticated" });
+    return;
+  }
+
+  const itemIdParam = req.params.itemId;
+  const itemId = parseInt(itemIdParam, 10);
+  if (isNaN(itemId)) {
+    res.status(400).json({ message: "Invalid item ID" });
+    return;
+  }
+
+
+
+  try {
+
+    const cart = await prisma.cart.findFirst({
+      where: {
+        clientId: clientId,
+        status: 'ACTIVE'
+      },
+      include: {
+        items: true
+      }
+    });
+    if (!cart) {
+      res.status(404).json({ message: "No active cart found for this client" });
+      return;
+    }
+
+    const cartItem = cart.items.find((item) => item.id === itemId);
+    if (!cartItem) {
+      res.status(404).json({ message: "Cart item not found in the client's cart" });
+      return;
+    }
+
+    const { delta } = req.body;
+    const parsedDelta = parseInt(delta, 10);
+    if (isNaN(parsedDelta)) {
+      res.status(400).json({ message: "Delta must be a valid integer" });
+      return;
+    }
+
+    const newQuantity = cartItem.quantity + parsedDelta;
+    if (newQuantity <= 0) {
+      const deleteItem = await prisma.cartItem.delete({
+        where: {
+          id: itemId
+        }
+      })
+      if (!deleteItem){
+        res.status(400).json({
+          message: "Item could not be deleted"
+        })
+      }
+      res.status(200).json({ message: "Item deleted successfuly" });
+      return;
+    }
+
+    const updatedItem = await prisma.cartItem.update({
+      where: { id: itemId },
+      data: { quantity: newQuantity }
+    });
+    if (!updatedItem) {
+      res.status(400).json({
+        message:"Items quantity could not be updated"
+      })
+      return
+    }
+    
+    res.status(200).json({
+      message:`Item's ${updatedItem.nameSnapshot} quantity updated successfuly `
+    })
+
+
+  } catch (err) {
+    console.error("Error uupdating cart item:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+
 }
