@@ -158,7 +158,8 @@ export const getCartSummary = async (req: Request, res: Response): Promise<void>
     res.status(200).json({
       message:"Cart items Summary",
       total_quantity: totalQuantity,
-      total_price: totalPrice
+      total_price: totalPrice,
+      items: cart.items
     })
 
   } catch(err) {
