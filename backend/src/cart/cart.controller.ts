@@ -384,6 +384,21 @@ export const checkout = async (req: Request, res: Response): Promise<void> => {
       return;
     }
     //validar se os itens ainda tem disponibilidade  (!!!!!!!!!!) nao esquecer
+    const insufficientItems: string[] = [];
+    cart.items.forEach((item) => {
+
+      if (item.quantity > item.product.quantity) {
+        insufficientItems.push(`Product '${item.product.name}' has ${item.product.quantity} in stock, but ${item.quantity} was requested.`);
+      }
+    });
+
+    if (insufficientItems.length > 0) {
+      res.status(400).json({
+        message: "Some items do not have sufficient stock.",
+        details: insufficientItems
+      });
+      return;
+    }
 
     let totalPrice = 0
     cart.items.forEach((item) => {
