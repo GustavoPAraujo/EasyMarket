@@ -32,7 +32,7 @@ export const addItemToCart = async (req: Request, res: Response): Promise<void> 
     }
 
     let cart = await prisma.cart.findFirst({
-      where: { clientId, status: 'ACTIVE' }
+      where: { clientId }
     });
     if (!cart) {
       cart = await prisma.cart.create({
@@ -40,6 +40,15 @@ export const addItemToCart = async (req: Request, res: Response): Promise<void> 
           clientId,
           status: 'ACTIVE'
         }
+      });
+    } else if (cart.status === 'CHECKED_OUT') {
+      
+      await prisma.cartItem.deleteMany({
+        where: { cartId: cart.id }
+      });
+      cart = await prisma.cart.update({
+        where: { id: cart.id },
+        data: { status: 'ACTIVE' }
       });
     }
 
