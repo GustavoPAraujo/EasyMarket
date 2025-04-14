@@ -344,3 +344,60 @@ export const deleteAllItems = async (req: Request, res: Response): Promise<void>
   }
 
 }
+
+export const checkout = async (req: Request, res: Response): Promise<void> => {
+
+  const clientId = req.user?.clientProfileId;
+  if (!clientId) {
+    res.status(401).json({ message: "Client not authenticated" });
+    return;
+  }
+
+  try {
+
+    const cart = await prisma.cart.findFirst({
+      where: {
+        clientId: clientId,
+        status: 'ACTIVE'
+      },
+      include: {
+        items: {
+          include: { product: true }
+        }
+      }
+    });
+    if (!cart) {
+      res.status(404).json({ message: "No active cart found for this client" });
+      return;
+    }
+    if (cart.items.length === 0){
+      res.status(400).json({ message: "No items added to cart" });
+      return;
+    }
+    //validar se os itens ainda tem disponibilidade  (!!!!!!!!!!) nao esquecer
+
+    let totalPrice = 0
+    cart.items.forEach((item) => {
+      const price = Number(item.priceSnapshot || item.product.price);
+      totalPrice += price * item.quantity;
+    })
+
+    const updatedCart = await prisma.cart.update({
+      where: { id: cart.id },
+      data: {
+        status: 'CHECKED_OUT'
+      }
+    });
+
+    res.status(200).json({
+      message: "Checkout completed successfully",
+      totalPrice,
+      cartId: updatedCart.id,
+      status: updatedCart.status
+    });
+
+  } catch(err) {
+    console.error("Error during checkout:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
