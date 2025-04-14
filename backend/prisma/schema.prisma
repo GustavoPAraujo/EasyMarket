@@ -30,6 +30,7 @@ model ClientProfile {
   id     Int   @id @default(autoincrement())
   userId Int   @unique
   user   User  @relation(fields: [userId], references: [id])
+  orders Order[]
   cart   Cart[]
 }
 
@@ -68,6 +69,7 @@ model Product {
   updatedAt   DateTime  @updatedAt
   
   cartItems   CartItem[]
+  orderItems  OrderItem[]
 }
 
 
@@ -112,30 +114,32 @@ model Order {
 
   status      OrderStatus    @default(PENDING)
   totalPrice  Decimal?       @db.Decimal(10,2)
-  items       OrderItems[]
+  items       OrderItem[]
 
   createdAt   DateTime       @default(now())
-  paidAt      DateTime       @paidAt
-  shippedAt   DateTime       @shippedAt
-  deliveredAt DateTime       @deliveredAt
+  paidAt      DateTime?
+  shippedAt   DateTime?
+  deliveredAt DateTime?
 
 }
 
-model OrderStatus {
+enum OrderStatus {
   PENDING
   PAID
   SHIPPED
   DELIVERED
 }
 
-model OrderItems {
-  id         Int          @id @default(autoincrement())
+model OrderItem {
+  id         Int       @id @default(autoincrement())
   orderId    Int
-  order      Order        @relation(fields: [orderId], references: [id])
+  order      Order     @relation(fields: [orderId], references: [id])
   productId  Int
-  product    Product      @relation(fields: [productId], references: [id])
+  product    Product   @relation(fields: [productId], references: [id])
+
   quantity   Int          
-  price      Decimal  @db.Decimal(10,2)
+  price      Decimal   @db.Decimal(10,2)
   name       String
-  createdAt  DateTime     @default(now())
+
+  createdAt  DateTime  @default(now())
 }
