@@ -44,10 +44,10 @@ export const addItemToCart = async (req: Request, res: Response): Promise<void> 
     } else if (cart.status === 'CHECKED_OUT') {
 
       const result = await prisma.$transaction( async (tx) => {
-        await prisma.cartItem.deleteMany({
+        await tx.cartItem.deleteMany({
           where: { cartId: cart?.id }
         });
-        cart = await prisma.cart.update({
+        cart = await tx.cart.update({
           where: { id: cart?.id },
           data: { status: 'ACTIVE' }
         });
