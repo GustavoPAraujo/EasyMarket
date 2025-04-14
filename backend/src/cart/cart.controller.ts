@@ -42,14 +42,16 @@ export const addItemToCart = async (req: Request, res: Response): Promise<void> 
         }
       });
     } else if (cart.status === 'CHECKED_OUT') {
-      
-      await prisma.cartItem.deleteMany({
-        where: { cartId: cart.id }
-      });
-      cart = await prisma.cart.update({
-        where: { id: cart.id },
-        data: { status: 'ACTIVE' }
-      });
+
+      const result = await prisma.$transaction( async (tx) => {
+        await prisma.cartItem.deleteMany({
+          where: { cartId: cart?.id }
+        });
+        cart = await prisma.cart.update({
+          where: { id: cart?.id },
+          data: { status: 'ACTIVE' }
+        });
+      })
     }
 
     let cartItem = await prisma.cartItem.findFirst({
