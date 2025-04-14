@@ -113,7 +113,7 @@ model Order {
   client      ClientProfile  @relation(fields: [clientId], references: [id])
 
   status      OrderStatus    @default(PENDING)
-  totalPrice  Decimal?       @db.Decimal(10,2)
+  totalPrice  Decimal        @db.Decimal(10,2)
   items       OrderItem[]
 
   createdAt   DateTime       @default(now())

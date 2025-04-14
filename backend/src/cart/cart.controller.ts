@@ -406,16 +406,52 @@ export const checkout = async (req: Request, res: Response): Promise<void> => {
       totalPrice += price * item.quantity;
     })
 
-    const updatedCart = await prisma.cart.update({
-      where: { id: cart.id },
-      data: {
-        status: 'CHECKED_OUT'
+
+    const result = await prisma.$transaction(async (tx) => {
+      const updatedCart = await tx.cart.update({
+        where: { id: cart.id },
+        data: { status: 'CHECKED_OUT' }
+      });
+    
+      const order = await tx.order.create({
+        data: {
+          clientId: clientId,
+          status: 'PENDING',
+          totalPrice: totalPrice,
+        }
+      });
+    
+      for (const item of cart.items) {
+        await tx.orderItem.create({
+          data: {
+            orderId: order.id,
+            productId: item.productId,
+            quantity: item.quantity,
+            price: item.priceSnapshot || item.product.price,
+            name: item.nameSnapshot || item.product.name
+          }
+        });
+        
+        await tx.product.update({
+          where: { id: item.productId },
+          data: {
+            quantity: {
+              decrement: item.quantity
+            }
+          }
+        });
       }
+    
+      return { updatedCart, order };
     });
+
+    const {updatedCart, order} = result
 
     res.status(200).json({
       message: "Checkout completed successfully",
       totalPrice,
+      orderId: order.id,
+      orderStatus: order.status,
       cartId: updatedCart.id,
       status: updatedCart.status
     });
