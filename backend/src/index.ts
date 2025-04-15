@@ -8,6 +8,7 @@ import userRoutes from './users/user.routes';
 import storeRoutes from './stores/store.routes';
 import productRouter from './products/product.routes'
 import cartRouter from './cart/cart.routes'
+import paymentRouter from "./payment/payment.routes"
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use("/api/user", userRoutes)
 app.use("/api/store", storeRoutes)
 app.use("/api/product", productRouter)
 app.use("/api/cart", cartRouter)
+app.use("/api/payment", cartRouter)
 
 
 app.listen(port, () => {
