@@ -7,5 +7,7 @@ const router = express.Router()
 
 router.post("/create-checkout-session", authenticateToken, paymentController.createCheckoutSession)
 
+router.get("/success", paymentController.paymentSuccess)
+router.get("/cancel", paymentController.paymentCancel)
 
 export default router

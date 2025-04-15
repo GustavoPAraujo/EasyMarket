@@ -56,10 +56,20 @@ export const createCheckoutSession = async (req: Request, res: Response): Promis
       }
     });
 
-    res.status(200).json({ sessionId: session.id });
+    res.status(200).json({ sessionId: session.id, url: session.url });
   } catch (error) {
     console.error("Error creating checkout session:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 }
 
+
+
+export const paymentSuccess = (_: Request, res: Response) => {
+  // Aqui você pode também atualizar o status do pedido via prisma, se quiser
+  res.send("🎉 Pagamento realizado com sucesso! Obrigado pela compra.");
+};
+
+export const paymentCancel = (_: Request, res: Response) => {
+  res.send("❌ Pagamento cancelado. Você pode tentar novamente quando quiser.");
+};
