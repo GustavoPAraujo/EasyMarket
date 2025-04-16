@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../services/prisma/prisma";
 
+//atualizar apos criar o Cloudinary Upload Widget no front
 export const createProduct = async (req: Request, res: Response): Promise<void> => {
 
   const adminId = req.user?.adminProfileId
@@ -180,6 +181,7 @@ export const getProductsByQuery = async (req: Request, res: Response): Promise<v
   }
 }
 
+//atualizar apos criar o Cloudinary Upload Widget no front
 export const updateProduct = async (req: Request, res: Response): Promise<void> => {
   const adminId = req.user?.adminProfileId;
   if (!adminId) {
