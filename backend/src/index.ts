@@ -15,6 +15,11 @@ dotenv.config();
 const app = express()
 const port = process.env.PORT
 
+app.use(
+  "/api/payments/webhook",
+  express.raw({ type: "application/json" })
+);
+
 app.use(cors())
 app.use(express.json())
 

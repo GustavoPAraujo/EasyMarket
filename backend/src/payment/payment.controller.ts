@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../services/prisma";
 import Stripe from "stripe";
-import { buffer } from "micro";
+
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY as string;
 const stripe = new Stripe(stripeSecretKey, { apiVersion: "2025-03-31.basil" });
@@ -68,7 +68,7 @@ export const stripeWebhook = async (req: Request, res: Response): Promise<void> 
 
   const sig = req.headers["stripe-signature"] as string;
 
-  const buf = await buffer(req as any);
+  const buf = req.body as Buffer;
 
   let event: Stripe.Event;
   try {
