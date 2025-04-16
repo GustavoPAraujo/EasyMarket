@@ -23,7 +23,7 @@ app.use("/api/user", userRoutes)
 app.use("/api/store", storeRoutes)
 app.use("/api/product", productRouter)
 app.use("/api/cart", cartRouter)
-app.use("/api/payment", paymentRouter)
+app.use("/api/payments", paymentRouter)
 
 
 app.listen(port, () => {
