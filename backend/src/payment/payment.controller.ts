@@ -53,6 +53,7 @@ export const createCheckoutSession = async (req: Request, res: Response): Promis
       success_url: `${process.env.PAYMENT_API_URL}/api/payments/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.PAYMENT_API_URL}/api/payments/cancel`,
       metadata: {
+        orderId: order.id.toString(),
         clientId: clientId.toString(),
       }
     });
@@ -79,6 +80,9 @@ export const stripeWebhook = async (req: Request, res: Response): Promise<void> 
     return 
   }
 
+  console.log("Received Stripe event:", event.type);
+  console.log("Metadata:", (event.data.object as any).metadata);
+
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
     const orderId = session.metadata?.orderId;
@@ -100,8 +104,6 @@ export const stripeWebhook = async (req: Request, res: Response): Promise<void> 
 
   res.json({ received: true });
 };
-
-
 
 export const paymentSuccess = (_: Request, res: Response) => {
   res.send("Your payment was successfull! Thanks for shopping with us.");
