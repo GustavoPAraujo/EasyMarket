@@ -1,7 +1,7 @@
 
 import { Request, Response } from "express"
 
-import prisma from "../services/prisma";
+import prisma from "../services/prisma/prisma";
 
 export const getMe = (req: Request, res: Response): void => {
 

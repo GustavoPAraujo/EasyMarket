@@ -2,7 +2,7 @@
 import express from "express";
 
 import * as storeController from "./store.controller"
-import { authenticateToken } from "../middlewares/auth.middleware";
+import { authenticateToken } from "../services/middlewares/auth.middleware";
 
 
 const router = express.Router()

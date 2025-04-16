@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import prisma from "../services/prisma";
+import prisma from "../services/prisma/prisma";
 
 export const createStore = async (req: Request, res: Response): Promise<void> => {
 

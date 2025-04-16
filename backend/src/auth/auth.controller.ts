@@ -6,7 +6,7 @@ import { Prisma } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/react-native.js"
 
 
-import prisma from "../services/prisma";
+import prisma from "../services/prisma/prisma";
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
