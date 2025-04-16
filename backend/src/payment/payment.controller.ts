@@ -16,7 +16,13 @@ export const createCheckoutSession = async (req: Request, res: Response): Promis
 
   const { orderId } = req.body;
 
-  const order = await prisma.order.findFirst({
+  if(!orderId) {
+    res.status(400).json({message: "Order not found"})
+    return
+  }
+  console.log('order ID', orderId)
+
+  const order = await prisma.order.findUnique({
     where: { 
       id: orderId,
       status: "PENDING"
@@ -65,6 +71,7 @@ export const createCheckoutSession = async (req: Request, res: Response): Promis
   }
 }
 
+//  .\stripe.exe listen --forward-to http://localhost:8000/api/payments/webhook
 export const stripeWebhook = async (req: Request, res: Response): Promise<void> => {
 
   const sig = req.headers["stripe-signature"] as string;
@@ -79,9 +86,6 @@ export const stripeWebhook = async (req: Request, res: Response): Promise<void> 
     res.status(400).send(`Webhook Error: ${err.message}`);
     return 
   }
-
-  console.log("Received Stripe event:", event.type);
-  console.log("Metadata:", (event.data.object as any).metadata);
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object as Stripe.Checkout.Session;
