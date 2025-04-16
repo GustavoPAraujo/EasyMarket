@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import prisma from "../services/prisma";
 import Stripe from "stripe";
+import { buffer } from "micro";
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY as string;
 const stripe = new Stripe(stripeSecretKey, { apiVersion: "2025-03-31.basil" });
@@ -62,6 +63,51 @@ export const createCheckoutSession = async (req: Request, res: Response): Promis
     res.status(500).json({ message: "Internal server error" });
   }
 }
+
+
+
+export const stripeWebhook = async (req: Request, res: Response): Promise<void> => {
+  // Obtenha o header da assinatura enviado pelo Stripe
+  const sig = req.headers["stripe-signature"] as string;
+
+  // Leia o corpo cru da requisição (não deixe que express.json() o processe)
+  const buf = await buffer(req as any);
+
+  let event: Stripe.Event;
+  try {
+    // Valida a assinatura usando seu secret configurado no .env
+    event = stripe.webhooks.constructEvent(buf, sig, process.env.STRIPE_WEBHOOK_SECRET!);
+  } catch (err: any) {
+    console.error("⚠️ Webhook signature verification failed:", err.message);
+    res.status(400).send(`Webhook Error: ${err.message}`);
+    return 
+  }
+
+  // Verifica se o evento recebido é de checkout completo
+  if (event.type === "checkout.session.completed") {
+    const session = event.data.object as Stripe.Checkout.Session;
+    const orderId = session.metadata?.orderId; // você deve ter enviado o orderId no metadata da sessão
+    if (orderId) {
+      try {
+        // Atualiza o pedido no banco definindo status para PAID e registrando a data do pagamento
+        await prisma.order.update({
+          where: { id: Number(orderId) },
+          data: { 
+            status: "PAID",
+            paidAt: new Date()
+          }
+        });
+        console.log(`✅ Order ${orderId} marked as PAID.`);
+      } catch (dbErr) {
+        console.error("Error updating order:", dbErr);
+      }
+    }
+  }
+  
+  // Responde ao Stripe confirmando o recebimento do evento
+  res.json({ received: true });
+  
+};
 
 
 
