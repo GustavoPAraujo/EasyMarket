@@ -1,1 +1,20 @@
 @import "tailwindcss";
+
+@theme  {
+  --color-primary:   #9854ff;
+  --color-secondary: #6356e5;
+  --color-tertiary:  #8c82ec;
+  --color-light-1:   #f3f6f6;
+  --color-light-2:   #d6e0e0;
+}
+
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer base {
+  :root {
+    --radius: 0.5rem;
+  }
+}
