@@ -13,6 +13,20 @@ export const login = async (usarData: {email: string, password: string}) => {
     return response.data
 
   } catch (err) {
+    console.error("Error logging in", err)
+  }
+}
+
+export const signup = async (userData: {name: string, email: string, password: string, role: string}) => {
+
+  try {
+
+    const response = await api.post("/auth/register", userData)
+    console.log(response)
+    return response.data
+
+  } catch (err) {
     console.error("Error signing up", err)
+
   }
 }
