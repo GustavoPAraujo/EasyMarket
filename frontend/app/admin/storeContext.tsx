@@ -1,19 +1,49 @@
+// app/admin/storeContext.tsx
 "use client";
 
-import { Store } from "@/types/store"
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useState,
+  useEffect,
+} from "react";
+import { useRouter } from "next/navigation";
+import { getStoreByAdminId } from "@/services/storeservices"
+import type { Store } from "@/types/store";
 
-import { createContext, ReactNode, useContext } from "react";
-
-
+// 1️⃣ Cria o contexto
 const StoreContext = createContext<Store | null>(null);
 
-export function StoreProvider({
-  children,
-  store,
-}: {
-  children: ReactNode;
-  store: Store;
-}) {
+// 2️⃣ Provider que faz o fetch internamente
+export function StoreProvider({ children }: { children: ReactNode }) {
+  const [store, setStore] = useState<Store | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    getStoreByAdminId()
+      .then((data) => {
+        setStore(data);
+      })
+      .catch((err) => {
+        console.error("Erro ao obter minha loja:", err);
+        // Se 401 ou 404, redireciona pra criar loja ou login:
+        router.push("/login");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [router]);
+
+  if (loading) {
+    return <div>Carregando loja do admin…</div>;
+  }
+  if (!store) {
+    // Se quer um fallback diferente, coloque aqui
+    return <div>Não foi possível carregar sua loja.</div>;
+  }
+
   return (
     <StoreContext.Provider value={store}>
       {children}
@@ -21,10 +51,11 @@ export function StoreProvider({
   );
 }
 
+// hook pra consumir em qualquer filho
 export function useStore(): Store {
-  const context = useContext(StoreContext);
-  if (!context) {
-    throw new Error("useStore precisa estar dentro de StoreProvider");
+  const ctx = useContext(StoreContext);
+  if (!ctx) {
+    throw new Error("useStore deve ser usado dentro de um StoreProvider");
   }
-  return context;
+  return ctx;
 }
