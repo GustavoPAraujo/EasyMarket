@@ -1,4 +1,5 @@
 "use client";
+
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -27,7 +28,7 @@ const loginSchema = z.object({
     .string({
       required_error: "Password is requiered."
     })
-    .min(4, { message: "Must have at least 4 characters." })
+    .min(8, { message: "Must have at least 8 characters." })
 })
 
 export default function Login() {
@@ -44,10 +45,9 @@ export default function Login() {
     }
   })
 
-
   return (
     <>
-      <div className="">
+      <div className="border rounded-3xl shadow-2xl px-10 py-14 ">
         <Form {...form}>
 
           <form onSubmit={form.handleSubmit(onSubmit)} className="w-100">
@@ -79,13 +79,11 @@ export default function Login() {
               )}
             />
 
-            <Button type="submit" className="mt-5">Sign Up</Button>
+            <Button type="submit" className="mt-5">Login</Button>
 
           </form>
         </Form>
-
       </div>
-
     </>
   )
 }
