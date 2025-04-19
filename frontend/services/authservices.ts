@@ -22,7 +22,6 @@ export const signup = async (userData: {name: string, email: string, password: s
   try {
 
     const response = await api.post("/auth/register", userData)
-    console.log(response)
     return response.data
 
   } catch (err) {

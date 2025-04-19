@@ -62,7 +62,7 @@ export default function Login() {
 
   return (
     <>
-      <div className="border rounded-3xl shadow-2xl px-10 py-14 ">
+      <div className="border rounded-3xl shadow-lg px-10 pb-10 pt-6 ">
         <Form {...form}>
 
           <form onSubmit={form.handleSubmit(onSubmit)} className="w-100">
