@@ -5,7 +5,7 @@ import { jwtVerify } from "jose";
 
 const jwtSecret = new TextEncoder().encode(process.env.JWT_SECRET!);
 
-const publicRoutes = ["/", "/auth"];
+const publicRoutes = ["/", "/login", "/register"];
 const protectedRoutes = [""];
 const adminRoutes = [""];
 
@@ -25,7 +25,7 @@ export async function middleware(request: NextRequest) {
 
 
   if (match(pathname, publicRoutes)) {
-    if (token && ["/auth","/auth"].includes(pathname)) {
+    if (token && ["/login","/register"].includes(pathname)) {
       return NextResponse.redirect(new URL("/", request.url));
     }
     return NextResponse.next();
@@ -33,7 +33,7 @@ export async function middleware(request: NextRequest) {
 
   if (match(pathname, protectedRoutes)) {
     if (!token) {
-      return NextResponse.redirect(new URL("/lauthogin", request.url));
+      return NextResponse.redirect(new URL("/login", request.url));
     }
 
     try {
@@ -50,7 +50,7 @@ export async function middleware(request: NextRequest) {
 
   if (match(pathname, adminRoutes)) {
     if (!token) {
-      return NextResponse.redirect(new URL("/auth", request.url));
+      return NextResponse.redirect(new URL("/login", request.url));
     }
     try {
       const { payload }: any = await jwtVerify(token, jwtSecret);
@@ -59,7 +59,7 @@ export async function middleware(request: NextRequest) {
       }
       return NextResponse.next();
     } catch {
-      const res = NextResponse.redirect(new URL("/auth", request.url));
+      const res = NextResponse.redirect(new URL("/login", request.url));
       res.cookies.delete("token");
       return res;
     }

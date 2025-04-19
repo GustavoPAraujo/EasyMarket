@@ -1,7 +1,6 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 
 export default function Header() {
 
@@ -19,14 +18,14 @@ export default function Header() {
 
       <div className="pr-20 flex items-center">
         <nav className="flex flex-row gap-6">
-          <Link href="/auth">
+          <Link href="/login">
             <h1 className="text-white hover:overline">carrinho</h1>
           </Link>
-          <Link href="/auth">
+          <Link href="/login">
             <h1 className="text-white hover:overline">carrinho</h1>
           </Link>
 
-          <Link href="/auth">
+          <Link href="/login">
             <h1 className="text-white hover:overline">carrinho</h1>
           </Link>
 
