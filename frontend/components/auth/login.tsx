@@ -3,6 +3,8 @@
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { login } from "@/services/authservices";
+import { useRouter } from "next/navigation"
 
 import {
   Form,
@@ -33,8 +35,21 @@ const loginSchema = z.object({
 
 export default function Login() {
 
+  const router = useRouter()
+
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
-    console.log(values)
+    try {
+
+      const result = await login(values);
+
+      if (result) {
+        form.reset()
+        router.push("/")
+      }
+
+    } catch (error) {
+      console.log("Login form", error)
+    }
   }
 
   const form = useForm<z.infer<typeof loginSchema>>({
