@@ -50,6 +50,32 @@ export const getAllStores = async (req: Request, res: Response): Promise<void> =
   }
 };
 
+export const getStoreByAdmin = async (req: Request, res: Response): Promise<void> => {
+  const adminId = req.user?.adminProfileId
+  if (isNaN(adminId)) {
+    res.status(400).json({ message: "Invalid admin ID" });
+    return;
+  }
+  
+  try {
+    const store = await prisma.store.findUnique({
+      where: { adminId: adminId },
+      include: { products: true }
+    });
+    if (!store) {
+      res.status(404).json({ message: "Store not found" });
+      return;
+    }
+    res.status(200).json({
+      message: "Store retrieved successfully",
+      store,
+    });
+  } catch (err) {
+    console.error("Error fetching store by admin ID:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 export const searchStoresByName = async (req: Request, res: Response): Promise<void> => {
   const { name } = req.query;
   if (!name || typeof name !== 'string') {
