@@ -23,12 +23,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     getStoreByAdminId()
       .then((data) => {
-        setStore(data);
+        if(!data){
+          router.push("/admin/store/create");
+        } else {
+          setStore(data);
+        }
       })
       .catch((err) => {
         console.error("Erro ao obter minha loja:", err);
-        // Se 401 ou 404, redireciona pra criar loja ou login:
-        router.push("/login");
+        if (err.response?.status === 401) {
+          router.push("/login");
+        } else {
+          router.push("/admin/store/create");
+        }
       })
       .finally(() => {
         setLoading(false);
@@ -38,9 +45,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   if (loading) {
     return <div>Carregando loja do admin…</div>;
   }
+  
   if (!store) {
- 
-    router.push("/admin/store/create");
+    return null;
   }
 
   return (

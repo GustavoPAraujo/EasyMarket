@@ -3,7 +3,7 @@
 import { Store, Product } from "@/types/store"
 import api from "./api"
 
-type Props = { children: React.ReactNode };
+
 
 export const getStoreById = async (storeId: number) => {
 

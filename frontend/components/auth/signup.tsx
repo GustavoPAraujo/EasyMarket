@@ -52,7 +52,7 @@ export default function SignUp() {
 
       if (result) {
         form.reset()
-        router.push("/")
+        router.push("/login")
       }
 
     } catch (error) {
@@ -66,7 +66,7 @@ export default function SignUp() {
       name: "",
       email: "",
       password: "",
-      role: "CLIENT"
+      role: "ADMIN"
     }
   })
 
