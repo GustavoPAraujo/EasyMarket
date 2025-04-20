@@ -1,4 +1,4 @@
-// app/admin/storeContext.tsx
+
 "use client";
 
 import React, {
@@ -12,10 +12,9 @@ import { useRouter } from "next/navigation";
 import { getStoreByAdminId } from "@/services/storeservices"
 import type { Store } from "@/types/store";
 
-// 1️⃣ Cria o contexto
+
 const StoreContext = createContext<Store | null>(null);
 
-// 2️⃣ Provider que faz o fetch internamente
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [store, setStore] = useState<Store | null>(null);
   const [loading, setLoading] = useState(true);
@@ -40,8 +39,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return <div>Carregando loja do admin…</div>;
   }
   if (!store) {
-    // Se quer um fallback diferente, coloque aqui
-    return <div>Não foi possível carregar sua loja.</div>;
+ 
+    router.push("/admin/store/create");
   }
 
   return (
@@ -51,7 +50,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// hook pra consumir em qualquer filho
 export function useStore(): Store {
   const ctx = useContext(StoreContext);
   if (!ctx) {
