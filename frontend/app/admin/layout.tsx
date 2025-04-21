@@ -11,12 +11,18 @@ export default function AdminLayout({ children }: Props) {
 
   const pathname = usePathname()
 
-
+  if (pathname === "/admin/store/create") {
+    return (
+      <div className="flex min-h-screen">
+        <main className="flex-1 p-8">{children}</main>
+      </div>
+    );
+  }
 
   return (
     <StoreProvider>
       <div className="flex min-h-screen">
-        { pathname === "/admin/store/create" ? <></> : <AdminSidebar /> }
+        <AdminSidebar />
         <main className="flex-1 p-8">{children}</main>
       </div>
     </StoreProvider>

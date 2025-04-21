@@ -21,13 +21,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  if (pathname === "/admin/store/create") {
-    return <>{children}</>;
-  }
 
   useEffect(() => {
     getStoreByAdminId()
       .then((data) => {
+        console.log("Data: ", data)
         if(data === null){
           router.push("/admin/store/create");
         } else {
