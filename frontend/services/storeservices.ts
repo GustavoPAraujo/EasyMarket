@@ -1,9 +1,12 @@
 
-
 import { Store, Product } from "@/types/store"
 import api from "./api"
 
-
+type MeResponse = {
+  needsCreation?: boolean;
+  message: string;
+  store?: Store;
+};
 
 export const getStoreById = async (storeId: number) => {
 
@@ -17,11 +20,14 @@ export const getStoreById = async (storeId: number) => {
 
 }
 
-export const getStoreByAdminId = async (): Promise<Store> => {
+export const getStoreByAdminId = async (): Promise<Store | null> => {
 
   try {
+    const { data } = await api.get<MeResponse>(`/store/me`);
 
-    const { data } = await api.get<{ store: any }>(`/store/me`);
+    if (data.needsCreation === true) {
+      return null;
+    }
     return parseStore(data.store);
 
   } catch (err) {
@@ -29,6 +35,7 @@ export const getStoreByAdminId = async (): Promise<Store> => {
     throw err;
   }
 }
+
 
 function parseStore(raw: any): Store {
   return {

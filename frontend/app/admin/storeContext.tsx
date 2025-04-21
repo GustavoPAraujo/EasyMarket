@@ -8,7 +8,7 @@ import React, {
   useState,
   useEffect,
 } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { getStoreByAdminId } from "@/services/storeservices"
 import type { Store } from "@/types/store";
 
@@ -19,11 +19,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [store, setStore] = useState<Store | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
+
+  if (pathname === "/admin/store/create") {
+    return <>{children}</>;
+  }
 
   useEffect(() => {
     getStoreByAdminId()
       .then((data) => {
-        if(!data){
+        if(data === null){
           router.push("/admin/store/create");
         } else {
           setStore(data);

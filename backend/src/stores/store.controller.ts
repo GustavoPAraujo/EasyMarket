@@ -63,7 +63,10 @@ export const getStoreByAdmin = async (req: Request, res: Response): Promise<void
       include: { products: true }
     });
     if (!store) {
-      res.status(404).json({ message: "Store not found" });
+      res.status(200).json({ 
+        needsCreation: true,
+        message: "This user does not have a store. Please create one!"
+      });
       return;
     }
     res.status(200).json({
