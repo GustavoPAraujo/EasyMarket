@@ -12,7 +12,11 @@ export const createStore = async (req: Request, res: Response): Promise<void> =>
   let { name, description } = req.body
 
   if (!name) {
-    res.status(401).json({ message: 'Missing required fields' })
+    res.status(401).json({ message: 'Name is required.' })
+    return
+  }
+  if (!description) {
+    res.status(401).json({ message: 'Description is required.' })
     return
   }
 
