@@ -7,7 +7,7 @@ const jwtSecret = new TextEncoder().encode(process.env.JWT_SECRET!);
 
 const publicRoutes = ["/", "/login", "/register"];
 const protectedRoutes = [""];
-const adminRoutes = [""];
+const adminRoutes = ["/admin/store/", "/admin/store/create", "/admin/store/products", "/admin/store/edit", "/admin/store/products"];
 
 function match(pathname: string, patterns: string[]) {
   return patterns.some(pattern => {
