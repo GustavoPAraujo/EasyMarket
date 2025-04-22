@@ -43,6 +43,7 @@ export const getStoreByAdminId = async (): Promise<Store | null> => {
 
   try {
     const { data } = await api.get<MeResponse>(`/store/me`);
+    console.log("data", data)
 
     if (data.needsCreation === true) {
       return null;

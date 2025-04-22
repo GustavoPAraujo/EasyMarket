@@ -20,7 +20,13 @@ app.use(
   express.raw({ type: "application/json" })
 );
 
-app.use(cors())
+app.use(cors({
+  origin: "http://localhost:3000",
+  credentials: true,
+  allowedHeaders: ["Authorization","Content-Type"],
+  methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"]
+}))
+
 app.use(express.json())
 
 app.use("/api/auth", authRoutes)

@@ -1,7 +1,7 @@
 "use client"
 
 
-import { useStore } from "@/app/admin/storeContext"
+import { useStore } from "@/app/admin/store/storeContext"
 import { format } from "date-fns";
 
 export default function Store() {

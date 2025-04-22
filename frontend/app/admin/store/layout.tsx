@@ -1,13 +1,13 @@
 "use client"
 
-import { StoreProvider } from "./storeContext";
+import { StoreProvider } from "./storeContext"
 import AdminSidebar from "@/components/sidebar/sidebar"
 import { usePathname } from "next/navigation"
 
 type Props = { children: React.ReactNode };
 
 
-export default function AdminLayout({ children }: Props) {
+export default function StoreLayout({ children }: Props) {
 
   const pathname = usePathname()
 

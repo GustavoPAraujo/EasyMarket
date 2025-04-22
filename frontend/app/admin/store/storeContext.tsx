@@ -20,7 +20,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
-
+  
 
   useEffect(() => {
     getStoreByAdminId()
@@ -34,7 +34,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       })
       .catch((err) => {
         console.error("Erro ao obter minha loja:", err);
-        if (err.response?.status === 401) {
+        if (err.response?.status === 400) {
           router.push("/login");
         } else {
           router.push("/admin/store/create");
