@@ -18,14 +18,11 @@ const StoreContext = createContext<Store | null>(null);
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [store, setStore] = useState<Store | null>(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
-  const pathname = usePathname();
-  
+  const router = useRouter();  
 
   useEffect(() => {
     getStoreByAdminId()
       .then((data) => {
-        console.log("Data: ", data)
         if(data === null){
           router.push("/admin/store/create");
         } else {
@@ -46,7 +43,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [router]);
 
   if (loading) {
-    return <div>Carregando loja do admin…</div>;
+    return <div className="flex h-screen justify-center items-center text-primary">Carregando loja do admin…</div>;
   }
   
   if (!store) {

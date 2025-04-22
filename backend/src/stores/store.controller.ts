@@ -21,6 +21,15 @@ export const createStore = async (req: Request, res: Response): Promise<void> =>
   }
 
   try {
+    const verifyExistingStore = await prisma.store.findUnique({
+      where: { adminId: adminId }
+    })
+
+    if (verifyExistingStore) {
+      res.status(400).json({message:"This user already have a store"})
+      return
+    }
+
     const store = await prisma.store.create({
       data: { name, description, adminId }
     });

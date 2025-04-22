@@ -9,15 +9,15 @@ type Props = { children: React.ReactNode };
 
 export default function StoreLayout({ children }: Props) {
 
-  const pathname = usePathname()
+  // const pathname = usePathname()
 
-  if (pathname === "/admin/store/create") {
-    return (
-      <div className="flex min-h-screen">
-        <main className="flex-1 p-8">{children}</main>
-      </div>
-    );
-  }
+  // if (pathname === "/admin/store/create") {
+  //   return (
+  //     <div className="flex min-h-screen">
+  //       <main className="flex-1 p-8">{children}</main>
+  //     </div>
+  //   );
+  // }
 
   return (
     <StoreProvider>
