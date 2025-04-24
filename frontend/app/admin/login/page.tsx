@@ -15,7 +15,7 @@ export default function Auth() {
         <Login user="ADMIN" />
         <div className="flex flex-row mt-6">
           <p className="mr-1">Don't have an account?</p>
-          <Link href="/register" className="text-primary">
+          <Link href="/admin/register" className="text-primary">
             Sign Up
           </Link>
         </div>

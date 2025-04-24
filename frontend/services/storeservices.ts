@@ -42,11 +42,11 @@ export const getStoreById = async (storeId: number) => {
 export const getStoreByAdminId = async (): Promise<Store | null> => {
 
   try {
-    const { data } = await api.get<MeResponse>(`/store/me`);
-    if (data.needsCreation === true) {
+    const response = await api.get<MeResponse>(`/store/me`);
+    if (response.data.needsCreation === true) {
       return null;
     }
-    return parseStore(data.store);
+    return parseStore(response.data.store);
 
   } catch (err) {
     console.log(err)

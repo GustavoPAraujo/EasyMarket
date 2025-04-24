@@ -12,10 +12,10 @@ export default function Auth() {
       </div>
 
       <div className=" flex flex-col items-center justify-center">
-        <SignUp user="CLIENT" />
+        <SignUp user="ADMIN" />
         <div className="flex flex-row mt-6">
           <p className="mr-1">Already have an account?</p>
-          <Link href="/login" className="text-primary">
+          <Link href="/admin/login" className="text-primary">
             Login
           </Link>
         </div>

@@ -40,7 +40,11 @@ const loginSchema = z.object({
     .string()
 })
 
-export default function SignUp() {
+interface SignupProps {
+  user: "ADMIN" | "CLIENT"
+}
+
+export default function SignUp({ user }: SignupProps) {
 
   const router = useRouter()
 
@@ -52,7 +56,15 @@ export default function SignUp() {
 
       if (result) {
         form.reset()
-        router.push("/login")
+        if(user === "CLIENT"){
+          router.push("/login")
+          return
+        }
+        if(user === "ADMIN"){
+          router.push("/admin/login")
+        
+        }
+        
       }
 
     } catch (error) {
