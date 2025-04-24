@@ -9,7 +9,7 @@ import React, {
   useEffect,
 } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { getStoreByAdminId } from "@/services/storeservices"
+import { getStoreByAdminId } from "@/services/storeServices"
 import type { Store } from "@/types/store";
 
 
@@ -23,6 +23,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     getStoreByAdminId()
       .then((data) => {
+        console.log(data)
         if(data === null){
           router.push("/admin/store/create");
         } else {

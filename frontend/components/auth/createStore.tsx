@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { createStore } from "@/services/storeservices"
+import { createStore } from "@/services/storeServices"
 import { useRouter } from "next/navigation"
 
 import {
