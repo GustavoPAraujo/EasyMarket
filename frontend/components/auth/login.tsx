@@ -33,7 +33,11 @@ const loginSchema = z.object({
     .min(8, { message: "Must have at least 8 characters." })
 })
 
-export default function Login() {
+interface LoginProps {
+  user: "ADMIN" | "CLIENT"
+}
+
+export default function Login({ user }: LoginProps) {
 
   const router = useRouter()
 
@@ -44,6 +48,10 @@ export default function Login() {
 
       if (result) {
         form.reset()
+        if (user === "ADMIN") {
+          router.push("/admin/store")
+          return
+        }
         router.push("/")
       }
 
