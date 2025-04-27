@@ -28,7 +28,7 @@ export default function Products() {
       <div>
         <Button onClick={handleModal}>Register new product</Button>
         {
-          OpenModal && <CreateProductFrom adminId={store.adminId}/>
+          OpenModal && <CreateProductFrom adminId={store.adminId}  onClose={() => setOpenModal(false)} />
         }
       </div>
       <div>

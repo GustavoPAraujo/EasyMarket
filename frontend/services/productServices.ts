@@ -16,7 +16,7 @@ export const createProduct = async (adminId: number, productData: createProduct)
     console.log("Product data:", productData)
 
 
-    const response = await api.post("/product")
+    const response = await api.post("/product", productData)
     console.log("response: ", response.data)
 
     return response.data

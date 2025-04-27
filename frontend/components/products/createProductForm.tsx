@@ -21,53 +21,61 @@ import { createProduct } from "@/services/productServices";
 
 const productSchema = z.object({
   name: z
-    .string({
-      required_error: "Name is requiered."
-    }),
+    .string()
+    .nonempty("Name is required."),
+
   description: z
-    .string({
-      required_error: "Store's description is requiered."
-    }),
+    .string()
+    .nonempty("Description is required."),
+
   quantity: z
-    .number(),
+    .coerce.number({ invalid_type_error: "Quantity must be a number." })
+    .refine(val => val > 0, { message: "Quantity must be greater then zero." }),
+
   price: z
-    .number(),
+    .coerce.number({ invalid_type_error: "Price must be a number." })
+    .refine(val => val > 0, { message: "Price must be greater then zero." }),
+
   category: z
-    .number(),
+    .coerce.number({ invalid_type_error: "Category must be a number." })
+    .min( 0, { message: "Invalid category." }),
 })
+
 
 interface CreateProductFromProps {
   adminId: number
+  onClose: () => void
 }
 
 
-export default function CreateProductFrom({ adminId }: CreateProductFromProps) {
+export default function CreateProductFrom({ adminId, onClose }: CreateProductFromProps) {
 
-    
-    const onSubmit = async (values: z.infer<typeof productSchema>) => {
-      try {
-        console.log("values:", values)
-        const result = await createProduct(adminId, values);
 
-        if (result.data) {
-          console.log(result.data)
-        }
-  
-      } catch (error) {
-        console.log("Login form", error)
+  const onSubmit = async (values: z.infer<typeof productSchema>) => {
+    try {
+      console.log("values:", values)
+      const result = await createProduct(adminId, values);
+
+      if (result) {
+        console.log(result)
+        onClose() 
       }
+
+    } catch (error) {
+      console.log("Login form", error)
     }
-  
-    const form = useForm<z.infer<typeof productSchema>>({
-      resolver: zodResolver(productSchema),
-      defaultValues: {
-        name: "",
-        description: "",
-        quantity: undefined,
-        price: undefined,
-        category: undefined
-      }
-    })
+  }
+
+  const form = useForm<z.infer<typeof productSchema>>({
+    resolver: zodResolver(productSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      quantity: 0,
+      price: 0,
+      category: 0
+    }
+  })
 
   return (
     <>
@@ -110,7 +118,7 @@ export default function CreateProductFrom({ adminId }: CreateProductFromProps) {
                 <FormItem className="mt-5">
                   <FormLabel>Quantity</FormLabel>
                   <FormControl>
-                    <Input type="quantity" placeholder="" {...field} />
+                    <Input type="number" placeholder="" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -124,7 +132,7 @@ export default function CreateProductFrom({ adminId }: CreateProductFromProps) {
                 <FormItem className="mt-5">
                   <FormLabel>Price</FormLabel>
                   <FormControl>
-                    <Input type="price" placeholder="" {...field} />
+                    <Input type="number" placeholder="" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -138,14 +146,14 @@ export default function CreateProductFrom({ adminId }: CreateProductFromProps) {
                 <FormItem className="mt-5">
                   <FormLabel>Category</FormLabel>
                   <FormControl>
-                    <Input type="category" placeholder="" {...field} />
+                    <Input type="number" placeholder="" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <Button type="submit" className="mt-5">Create Store</Button>
+            <Button type="submit" className="mt-5">Create Product</Button>
 
           </form>
         </Form>
