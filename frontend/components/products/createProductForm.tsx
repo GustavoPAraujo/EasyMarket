@@ -77,7 +77,7 @@ export default function CreateProductFrom({ adminId, onClose, onSuccess }: Creat
   })
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex justify-center items-center z-50">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex justify-center items-center z-50 h-full">
       <div className="border rounded-3xl shadow-lg px-10 pb-10 pt-6 bg-white ">
 
         <Button onClick={() => onClose()}>Close</Button>

@@ -1,4 +1,3 @@
-// app/admin/products/page.tsx (ou onde for)
 "use client";
 
 import { useStore } from "@/app/admin/store/storeContext";
@@ -15,6 +14,7 @@ export default function Products() {
   const store = useStore();
 
   const handleCreateSuccess = () => {
+    console.log("CREATE SUCCESS!");
     setOpenModal(false);
     setNotification({ message: "Produto criado com sucesso!", type: "success" });
   };
