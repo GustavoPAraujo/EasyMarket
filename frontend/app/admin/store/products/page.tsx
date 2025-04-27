@@ -1,44 +1,49 @@
-"use client"
+// app/admin/products/page.tsx (ou onde for)
+"use client";
 
-import { useStore } from "@/app/admin/store/storeContext"
-import { Button } from "@/components/ui/button"
-import { useState } from "react"
-import CreateProductFrom from "@/components/products/createProductForm"
-import ProductsMap from "@/components/products/productDisplay/productsMap"
+import { useStore } from "@/app/admin/store/storeContext";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import CreateProductForm from "@/components/products/createProductForm";
+import ProductsMap from "@/components/products/productDisplay/productsMap";
+import Notification from "@/components/notification/notification";
 
 export default function Products() {
-  const [OpenModal, setOpenModal] = useState<boolean>(false)
-  
-  const store = useStore()
+  const [openModal, setOpenModal] = useState(false);
+  const [notification, setNotification] = useState<{ message: string; type?: "success" | "error" | "info" } | null>(null);
 
-  const handleModal = () => {
-    
-    if (OpenModal) {
-      setOpenModal(false)
-      return
-    }
-    setOpenModal(true)
+  const store = useStore();
 
-  }
+  const handleCreateSuccess = () => {
+    setOpenModal(false);
+    setNotification({ message: "Produto criado com sucesso!", type: "success" });
+  };
 
   return (
     <div className="space-y-6">
-
-      <div className="">
       <h1 className="text-3xl font-bold">Products</h1>
-      </div>
 
-      <div>
-        <Button onClick={handleModal}>Register new product</Button>
-        {
-          OpenModal && <CreateProductFrom adminId={store.adminId}  onClose={() => setOpenModal(false)} />
-        }
-      </div>
+      <Button onClick={() => setOpenModal(true)}>Register new product</Button>
 
-      <div>
-          <ProductsMap products={store.products} />
-      </div>
+      {openModal && (
+        <CreateProductForm
+          adminId={store.adminId}
+          onClose={() => setOpenModal(false)}
+          onSuccess={handleCreateSuccess} 
+        />
+      )}
 
+      <ProductsMap products={store.products} />
+
+      {notification && (
+        <Notification
+          show={true}
+          message={notification.message}
+          type={notification.type}
+          duration={3000}
+          onClose={() => setNotification(null)}
+        />
+      )}
     </div>
-  )
+  );
 }

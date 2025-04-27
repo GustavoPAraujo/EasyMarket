@@ -3,8 +3,7 @@
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { createStore } from "@/services/storeServices"
-import { useRouter } from "next/navigation"
+import Notification from "@/components/notification/notification"
 
 import {
   Form,
@@ -45,20 +44,20 @@ const productSchema = z.object({
 interface CreateProductFromProps {
   adminId: number
   onClose: () => void
+  onSuccess: () => void;
 }
 
 
-export default function CreateProductFrom({ adminId, onClose }: CreateProductFromProps) {
+export default function CreateProductFrom({ adminId, onClose, onSuccess }: CreateProductFromProps) {
 
 
   const onSubmit = async (values: z.infer<typeof productSchema>) => {
     try {
-      console.log("values:", values)
       const result = await createProduct(adminId, values);
 
       if (result) {
-        console.log(result)
         onClose() 
+        onSuccess();
       }
 
     } catch (error) {
