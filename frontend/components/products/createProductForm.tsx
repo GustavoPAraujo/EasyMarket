@@ -78,10 +78,12 @@ export default function CreateProductFrom({ adminId, onClose }: CreateProductFro
   })
 
   return (
-    <>
-      <div className="border rounded-3xl shadow-lg px-10 pb-10 pt-6 ">
-        <Form {...form}>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex justify-center items-center z-50">
+      <div className="border rounded-3xl shadow-lg px-10 pb-10 pt-6 bg-white ">
 
+        <Button onClick={() => onClose()}>Close</Button>
+
+        <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="w-200">
             <FormField
               control={form.control}
@@ -158,6 +160,6 @@ export default function CreateProductFrom({ adminId, onClose }: CreateProductFro
           </form>
         </Form>
       </div>
-    </>
+    </div>
   )
 }
