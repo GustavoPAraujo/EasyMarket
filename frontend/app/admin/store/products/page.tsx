@@ -4,7 +4,7 @@ import { useStore } from "@/app/admin/store/storeContext"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import CreateProductFrom from "@/components/products/createProductForm"
-import ProductsMap from "@/components/products/productsMap"
+import ProductsMap from "@/components/products/productDisplay/productsMap"
 
 export default function Products() {
   const [OpenModal, setOpenModal] = useState<boolean>(false)
@@ -36,10 +36,7 @@ export default function Products() {
       </div>
 
       <div>
-        {
           <ProductsMap products={store.products} />
-        }
-        
       </div>
 
     </div>
