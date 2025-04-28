@@ -1,3 +1,4 @@
+import Link from "next/link";
 
 
 
@@ -5,6 +6,7 @@ export default function ProductCard({ product }: any) {
 
 
   return (
+    <Link href={`/admin/store/products/${product.id}`}>
     <div key={product.id} className="bg-light-1 w-66 h-20 p-2 m-2 rounded-xl shadow-lg" >
       <h1>
         {product.name}
@@ -15,5 +17,6 @@ export default function ProductCard({ product }: any) {
 
       </div>
     </div>
+    </Link>
   )
 }
