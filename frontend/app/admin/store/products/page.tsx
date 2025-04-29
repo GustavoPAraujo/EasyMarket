@@ -11,7 +11,7 @@ export default function Products() {
   const [openModal, setOpenModal] = useState(false);
   const [notification, setNotification] = useState<{ message: string; type?: "success" | "error" | "info" } | null>(null);
 
-  const store = useStore();
+  const store = useStore(); 
 
   const handleCreateSuccess = () => {
     console.log("CREATE SUCCESS!");
